@@ -162,14 +162,120 @@ CUSTOM_DOC("Displays yuval's command lister in the current panel")
     }
 }
 
+CUSTOM_COMMAND_SIG(yuval_list_all_type_definitions_lister)
+CUSTOM_DOC("Creates a lister of locations that look like type definitions.")
+{
+
+}
+
+CUSTOM_COMMAND_SIG(yuval_list_all_macros_lister)
+CUSTOM_DOC("Creates a lister of locations that look like macros.")
+{
+
+}
+
+CUSTOM_COMMAND_SIG(yuval_list_all_notes_lister)
+CUSTOM_DOC("Creates a lister of locations that look like NOTE comments.")
+{
+
+}
+
+CUSTOM_COMMAND_SIG(yuval_list_all_todos_lister)
+CUSTOM_DOC("Creates a lister of locations that look like TODO comments.")
+{
+
+}
+
+CUSTOM_COMMAND_SIG(yuval_list_all_importants_lister)
+CUSTOM_DOC("Creates a lister of locations that look like IMPORTANT comments.")
+{
+
+}
+
+CUSTOM_COMMAND_SIG(yuval_list_all_studies_lister)
+CUSTOM_DOC("Creates a lister of locations that look like STUDY comments.")
+{
+
+}
+
 CUSTOM_COMMAND_SIG(yuval_jump_lister)
 CUSTOM_DOC("Displays yuval's jump lister in the current panel.")
 {
+    Scratch_Block scratch(app);
 
+    // NOTE(yuval): Begin the jump lister
+    Lister* lister = begin_lister(app, scratch);
+    {
+        lister_set_query(lister, string_u8_litexpr("Jump:"));
+        lister->handlers = lister_get_default_handlers();
+    }
+
+    // NOTE(yuval): Add jump categories
+    {
+        String_Const_u8 desc = SCu8();
+
+        // NOTE(yuval): Functions
+        {
+            String_Const_u8 string = string_u8_litexpr("Function");
+            void* func = (void*)list_all_functions_all_buffers_lister;
+            lister_add_item(lister, string, desc, func, 0);
+        }
+
+        // NOTE(yuval): Types
+        {
+            String_Const_u8 string = string_u8_litexpr("Type");
+            void* func = (void*)yuval_list_all_type_definitions_lister;
+            lister_add_item(lister, string, desc, func, 0);
+        }
+
+        // NOTE(yuval): Macros
+        {
+            String_Const_u8 string = string_u8_litexpr("Macro");
+            void* func = (void*)yuval_list_all_macros_lister;
+            lister_add_item(lister, string, desc, func, 0);
+        }
+
+        // NOTE(yuval): NOTEs
+        {
+            String_Const_u8 string = string_u8_litexpr("NOTE");
+            void* func = (void*)yuval_list_all_notes_lister;
+            lister_add_item(lister, string, desc, func, 0);
+        }
+
+        // NOTE(yuval): TODOs
+        {
+            String_Const_u8 string = string_u8_litexpr("TODO");
+            void* func = (void*)yuval_list_all_todos_lister;
+            lister_add_item(lister, string, desc, func, 0);
+        }
+
+        // NOTE(yuval): IMPORTANTs
+        {
+            String_Const_u8 string = string_u8_litexpr("IMPORTANT");
+            void* func = (void*)yuval_list_all_importants_lister;
+            lister_add_item(lister, string, desc, func, 0);
+        }
+
+        // NOTE(yuval): STUDYs
+        {
+            String_Const_u8 string = string_u8_litexpr("STUDY");
+            void* func = (void*)yuval_list_all_studies_lister;
+            lister_add_item(lister, string, desc, func, 0);
+        }
+    }
+
+    // NOTE(yuval): Run the lister
+    {
+        Lister_Result result = run_lister(app, lister);
+        if (!result.canceled) {
+            Custom_Command_Function* command = (Custom_Command_Function*)result.user_data;
+            command(app);
+        }
+    }
 }
 
 CUSTOM_COMMAND_SIG(yuval_jump_lister_other_panel)
 CUSTOM_DOC("Displays yuval's jump lister in the other panel.")
 {
-
+    change_active_panel_send_command(app, yuval_jump_lister);
 }
