@@ -127,27 +127,39 @@ CUSTOM_DOC("Displays yuval's command lister in the current panel")
 
     // NOTE(yuval): Add commands
     {
-        local_const String_Const_u8 switch_project_string = string_u8_litexpr("switch_project");
-        local_const String_Const_u8 switch_project_desc =
-            string_u8_litexpr("Closes the current project and displays the project list");
-        local_const Custom_Command_Function* switch_project_func = yuval_switch_project;
-        lister_add_item(lister, switch_project_string, switch_project_desc, switch_project_func, 0);
+        // NOTE(yuval): switch_project command
+        {
+            String_Const_u8 string = string_u8_litexpr("switch_project");
+            String_Const_u8 desc = string_u8_litexpr("Closes the current project and displays the project list.");
+            void* func = (void*)yuval_switch_project;
+            lister_add_item(lister, string, desc, func, 0);
+        }
 
-        local_const String_Const_u8 modify_projects_string = string_u8_litexpr("modify_projects");
-        local_const String_Const_u8 modify_projects_desc =
-            string_u8_litexpr("Opens the project list file in the current panel");
-        local_const Custom_Command_Function* modify_projects_func = yuval_modify_projects;
-        lister_add_item(lister, modify_projects_string, modify_projects_desc, modify_projects_func, 0);
+        // NOTE(yuval): modify_projects command
+        {
+            String_Const_u8 string = string_u8_litexpr("modify_projects");
+            String_Const_u8 desc = string_u8_litexpr("Opens the project list file in the current panel.");
+            void* func = (void*)yuval_modify_projects;
+            lister_add_item(lister, string, desc, func, 0);
+        }
 
-        local_const String_Const_u8 switch_project_string = string_u8_litexpr("toggle_fullscreen");
-        local_const String_Const_u8 switch_project_desc =
-            string_u8_litexpr("Toggles 4coder between fullscreen and windowed modes");
-        local_const Custom_Command_Function* switch_project_func = toggle_fullscreen;
-        lister_add_item(lister, switch_project_string, switch_project_desc, switch_project_func, 0);
+        // NOTE(yuval): toggle_fullscreen command
+        {
+            String_Const_u8 string = string_u8_litexpr("toggle_fullscreen");
+            String_Const_u8 desc = string_u8_litexpr("Toggles 4coder between fullscreen and windowed modes.");
+            void* func = (void*)toggle_fullscreen;
+            lister_add_item(lister, string, desc, func, 0);
+        }
     }
 
     // NOTE(yuval): Run the lister
-    
+    {
+        Lister_Result result = run_lister(app, lister);
+        if (result.canceled) {
+            Custom_Command_Function* command = (Custom_Command_Function*)result.user_data;
+            command(app);
+        }
+    }
 }
 
 CUSTOM_COMMAND_SIG(yuval_jump_lister)
