@@ -155,7 +155,7 @@ CUSTOM_DOC("Displays yuval's command lister in the current panel")
     // NOTE(yuval): Run the lister
     {
         Lister_Result result = run_lister(app, lister);
-        if (result.canceled) {
+        if (!result.canceled) {
             Custom_Command_Function* command = (Custom_Command_Function*)result.user_data;
             command(app);
         }
