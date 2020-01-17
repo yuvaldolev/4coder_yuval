@@ -5,9 +5,8 @@
 #pragma warning(disable : 4706)
 
 #include "4coder_fleury_utilities.cpp"
-#include "4coder_fleury_ubiquitous.cpp"
+#include "4coder_yuval_ubiquitous.cpp" // TODO(yuval): Move this to my includes section
 #include "4coder_fleury_power_mode.cpp"
-#include "4coder_fleury_code_peek.cpp"
 #include "4coder_fleury_brace.cpp"
 #include "4coder_fleury_divider_comments.cpp"
 #include "4coder_fleury_plot.cpp"
@@ -27,6 +26,7 @@ global char global_build_file_path[4096] = "./build.sh";
 #include "4coder_yuval_commands.cpp"
 #include "4coder_yuval_bindings.cpp"
 #include "4coder_yuval_cursor.cpp"
+#include "4coder_yuval_code_peek.cpp"
 
 //~ NOTE(rjf): Error annotations
 
@@ -459,7 +459,7 @@ Fleury4RenderBuffer(Application_Links *app, View_ID view_id, Face_ID face_id,
                     Buffer_ID buffer, Text_Layout_ID text_layout_id,
                     Rect_f32 rect, Frame_Info frame_info)
 {
-    ProfileScope(app, "[Fleury] Render Buffer");
+    ProfileScope(app, "[Yuval] Render Buffer");
     
     View_ID active_view = get_active_view(app, Access_Always);
     b32 is_active_view = (active_view == view_id);
@@ -469,7 +469,7 @@ Fleury4RenderBuffer(Application_Links *app, View_ID view_id, Face_ID face_id,
     Token_Array token_array = get_token_array_from_buffer(app, buffer);
     if(token_array.tokens != 0)
     {
-        Fleury4DrawCTokenColors(app, text_layout_id, &token_array);
+        yuval_draw_cpp_token_colors(app, text_layout_id, &token_array);
         
         // NOTE(allen): Scan for TODOs and NOTEs
         if(global_config.use_comment_keyword)
@@ -672,7 +672,7 @@ Fleury4RenderBuffer(Application_Links *app, View_ID view_id, Face_ID face_id,
 static void
 Fleury4Render(Application_Links *app, Frame_Info frame_info, View_ID view_id)
 {
-    ProfileScope(app, "[Fleury] Render");
+    ProfileScope(app, "[Yuval] Render");
     View_ID active_view = get_active_view(app, Access_Always);
     b32 is_active_view = (active_view == view_id);
     
@@ -784,7 +784,7 @@ Fleury4Render(Application_Links *app, Frame_Info frame_info, View_ID view_id)
 
 BUFFER_HOOK_SIG(Fleury4BeginBuffer)
 {
-    ProfileScope(app, "[Fleury] Begin Buffer");
+    ProfileScope(app, "[Yuval] Begin Buffer");
     
     Scratch_Block scratch(app);
     b32 treat_as_code = false;

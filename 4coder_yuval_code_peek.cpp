@@ -275,7 +275,7 @@ Fleury4RenderCodePeek(Application_Links *app, View_ID view_id, Face_ID face_id,
                     Token_Array token_array = get_token_array_from_buffer(app, match->jump.buffer);
                     if(token_array.tokens != 0)
                     {
-                        Fleury4DrawCTokenColors(app, text_layout_id, &token_array);
+                        yuval_draw_cpp_token_colors(app, text_layout_id, &token_array);
                     }
                     else
                     {

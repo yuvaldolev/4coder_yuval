@@ -3,11 +3,46 @@ static Face_ID global_styled_label_face = 0;
 static Face_ID global_small_code_face = 0;
 static Vec2_f32 global_cursor_position = {0};
 static Vec2_f32 global_last_cursor_position = {0};
-// static b32 global_dark_mode = 1;
+static b32 global_dark_mode = 1;
+
+static Code_Index_Note *
+yuval_lookup_string_in_code_index(Application_Links *app, String_Const_u8 string) {
+    Code_Index_Note *note = 0;
+    
+	if (string.str) {
+		for (Buffer_ID buffer_it = get_buffer_next(app, 0, Access_Always);
+             buffer_it != 0; buffer_it = get_buffer_next(app, buffer_it, Access_Always))
+		{
+			Code_Index_File* file = code_index_get_file(buffer_it);
+			if (file != 0)
+			{
+				for (i32 i = 0; i < file->note_array.count; i += 1)
+				{
+					Code_Index_Note* this_note = file->note_array.ptrs[i];
+                    
+					if (string_match(this_note->text, string))
+					{
+						note = this_note;
+						break;
+					}
+				}
+			}
+		}
+	}
+    return note;
+}
+
+static Code_Index_Note *
+yuval_lookup_token_in_code_index(Application_Links *app, Buffer_ID buffer, Token token) {
+    Code_Index_Note *note = 0;
+    Scratch_Block scratch(app);
+    String_Const_u8 string = push_buffer_range(app, scratch, buffer, Ii64(token.pos, token.pos + token.size));
+    note = yuval_lookup_string_in_code_index(app, string);
+    return note;
+}
 
 static ARGB_Color
-Fleury4GetCTokenColor(Token token)
-{
+yuval_get_cpp_token_color(Token token) {
     ARGB_Color color = ARGBFromID(defcolor_text_default);
     
     switch(token.kind)
@@ -29,10 +64,19 @@ Fleury4GetCTokenColor(Token token)
             u32 r = (color & 0x00ff0000) >> 16;
             u32 g = (color & 0x0000ff00) >>  8;
             u32 b = (color & 0x000000ff) >>  0;
-
-            r = (r * 3) / 5;
-            g = (g * 3) / 5;
-            b = (b * 3) / 5;
+            
+            if(global_dark_mode)
+            {
+                r = (r * 3) / 5;
+                g = (g * 3) / 5;
+                b = (b * 3) / 5;
+            }
+            else
+            {
+                r = (r * 4) / 3;
+                g = (g * 4) / 3;
+                b = (b * 4) / 3;
+            }
             
             color = 0xff000000 | (r << 16) | (g << 8) | (b << 0);
             
@@ -72,20 +116,47 @@ Fleury4GetCTokenColor(Token token)
 }
 
 static void
-Fleury4DrawCTokenColors(Application_Links *app, Text_Layout_ID text_layout_id, Token_Array *array)
-{
+yuval_draw_cpp_token_colors(Application_Links *app, Text_Layout_ID text_layout_id, Token_Array *array) {
+    local_const ARGB_Color TYPE_COLOR = 0xFFBA9341;
+    local_const ARGB_Color FUNCTION_COLOR = 0xFFB74D45;
+    local_const ARGB_Color MACRO_COLOR = 0xFF4F8C7C;
+    
     Range_i64 visible_range = text_layout_get_visible_range(app, text_layout_id);
     i64 first_index = token_index_from_pos(array, visible_range.first);
     Token_Iterator_Array it = token_iterator_index(0, array, first_index);
     
-    for(;;)
+    for (;;)
     {
         Token *token = token_it_read(&it);
-        if(token->pos >= visible_range.one_past_last)
+        if (!token || token->pos >= visible_range.one_past_last)
         {
             break;
         }
-        ARGB_Color argb = Fleury4GetCTokenColor(*token);
+        
+        ARGB_Color argb = yuval_get_cpp_token_color(*token);
+        
+        if (token->kind == TokenBaseKind_Identifier) {           
+            // NOTE(yuval): Is this a function, type, or macro?
+            Buffer_ID buffer = text_layout_get_buffer(app, text_layout_id);
+            if (buffer) {
+                Code_Index_Note *note = 0;
+                
+                // NOTE(rjf): Look up token.
+                {
+                    ProfileScope(app, "[Yuval] Code Index Token Look-Up");
+                    note = yuval_lookup_token_in_code_index(app, buffer, *token);
+                }
+                
+                if (note) {
+                    switch (note->note_kind) {
+                        case CodeIndexNote_Type: { argb = TYPE_COLOR; } break;
+                        case CodeIndexNote_Function: { argb = FUNCTION_COLOR; } break;
+                        case CodeIndexNote_Macro: { argb = MACRO_COLOR; } break;
+                    }
+                }
+            }
+        }
+        
         paint_text_color(app, text_layout_id, Ii64_size(token->pos, token->size), argb);
         if(!token_it_inc_all(&it))
         {

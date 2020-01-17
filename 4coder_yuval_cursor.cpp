@@ -73,7 +73,7 @@ yuval_render_cursor(Application_Links *app, View_ID view_id, b32 is_active_view,
                         }
                     }
                     
-                    if(fabs(x_change) > 1.f || fabs(y_change) > 1.f)
+                    if(fabs(x_change) > 0.f || fabs(y_change) > 0.f)
                     {
                         animate_in_n_milliseconds(app, 0);
                     }

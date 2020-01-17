@@ -165,7 +165,16 @@ CUSTOM_DOC("Displays yuval's command lister in the current panel")
 CUSTOM_COMMAND_SIG(yuval_list_all_type_definitions_lister)
 CUSTOM_DOC("Creates a lister of locations that look like type definitions.")
 {
+    String_Const_u8 keyword_strings[] = {
+        string_u8_litinit("struct"),
+        string_u8_litinit("union"),
+        string_u8_litinit("enum")
+    };
 
+    String_Const_u8_Array keywords = array_initr(keyword_strings);
+    list_all_locations__generic(app, keywords, ListAllLocationsFlag_CaseSensitive);
+
+    view_jump_list_with_lister(app);
 }
 
 CUSTOM_COMMAND_SIG(yuval_list_all_macros_lister)
