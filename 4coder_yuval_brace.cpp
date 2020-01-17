@@ -76,9 +76,21 @@ Fleury4RenderCloseBraceAnnotation(Application_Links *app, Buffer_ID buffer, Text
     {
         Range_i64 range = ranges.ranges[i];
         
-        if(range.start >= visible_range.start)
+        // NOTE(yuval): Check if the range is visible
         {
-            continue;
+            // NOTE(yuval): Check if the token before the range start is in the visible range
+            // (this is so that if we only see the braces and not the actual statement the annotation will show).
+            Token_Iterator_Array it = token_iterator_pos(0, &token_array, range.start - 1);
+            Token *token = token_it_read(&it);
+            if (!token || (token && (token->pos >= visible_range.start))) {
+                continue;
+            }
+
+            // NOTE(yuval): Check if the range's end is not in the visialbe range
+            // (if the closing brace is not visible than we don't need to render an annotation)
+            if (range.end > visible_range.end) {
+                continue;
+            }
         }
         
         Rect_f32 close_scope_rect = text_layout_character_on_screen(app, text_layout_id, range.end);

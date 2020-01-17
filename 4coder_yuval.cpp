@@ -1,13 +1,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include "4coder_default_include.cpp"
+#include "generated/managed_id_metadata.cpp"
 
 #pragma warning(disable : 4706)
 
 #include "4coder_fleury_utilities.cpp"
 #include "4coder_yuval_ubiquitous.cpp" // TODO(yuval): Move this to my includes section
 #include "4coder_fleury_power_mode.cpp"
-#include "4coder_fleury_brace.cpp"
 #include "4coder_fleury_divider_comments.cpp"
 #include "4coder_fleury_plot.cpp"
 #include "4coder_fleury_calc.cpp"
@@ -27,6 +27,7 @@ global char global_build_file_path[4096] = "./build.sh";
 #include "4coder_yuval_bindings.cpp"
 #include "4coder_yuval_cursor.cpp"
 #include "4coder_yuval_code_peek.cpp"
+#include "4coder_yuval_brace.cpp"
 
 //~ NOTE(rjf): Error annotations
 
@@ -959,7 +960,6 @@ custom_layer_init(Application_Links *app)
     // NOTE(allen): setup for default framework
     {
         async_task_handler_init(app, &global_async_system);
-        
         code_index_init();
         buffer_modified_set_init();
         Profile_Global_List *list = get_core_profile_list(app);

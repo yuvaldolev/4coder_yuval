@@ -165,7 +165,7 @@ CUSTOM_DOC("Displays yuval's command lister in the current panel")
 CUSTOM_COMMAND_SIG(yuval_list_all_type_definitions_lister)
 CUSTOM_DOC("Creates a lister of locations that look like type definitions.")
 {
-    String_Const_u8 keyword_strings[] = {
+    /*String_Const_u8 keyword_strings[] = {
         string_u8_litinit("struct"),
         string_u8_litinit("union"),
         string_u8_litinit("enum")
@@ -174,7 +174,63 @@ CUSTOM_DOC("Creates a lister of locations that look like type definitions.")
     String_Const_u8_Array keywords = array_initr(keyword_strings);
     list_all_locations__generic(app, keywords, ListAllLocationsFlag_CaseSensitive);
 
-    view_jump_list_with_lister(app);
+    view_jump_list_with_lister(app);*/
+
+    char *query = "Definition:";
+    
+    Scratch_Block scratch(app);
+    Lister *lister = begin_lister(app, scratch);
+    lister_set_query(lister, query);
+    lister->handlers = lister_get_default_handlers();
+    
+    Token_Iterator_Array it;
+    Token *token = 0;
+
+    code_index_lock();
+    for (Buffer_ID buffer = get_buffer_next(app, 0, Access_Always);
+         buffer != 0;
+         buffer = get_buffer_next(app, buffer, Access_Always)) {
+        Code_Index_File *file = code_index_get_file(buffer);
+        Token_Array token_array = get_token_array_from_buffer(app, buffer);
+
+        if (file != 0) {
+            for (i32 i = 0; i < file->note_array.count; i += 1) {
+                Code_Index_Note *note = file->note_array.ptrs[i];
+                Tiny_Jump *jump = push_array(scratch, Tiny_Jump, 1);
+                jump->buffer = buffer;
+                jump->pos = note->pos.first;
+                
+                Range_i64 def_range = {0, note->pos.end}; 
+                if (note->note_kind == CodeIndexNote_Type) {
+                    it = token_iterator_pos(0, &token_array, note->pos.min);
+                    while (token_it_dec_non_whitespace(&it)) {
+                        token = token_it_read(&it);
+                        if ((token->sub_kind == TokenCppKind_Struct) ||
+                            (token->sub_kind == TokenCppKind_Enum) ||
+                            (token->sub_kind == TokenCppKind_Union) ||
+                            (token->sub_kind == TokenCppKind_Typedef)) {
+                            def_range.start = token->pos;
+                            break;
+                        }
+                    }
+                    String_Const_u8 def = push_buffer_range(app, scratch, buffer, def_range);
+                    lister_add_item(lister, note->text, def, jump, 0);
+                }
+            }
+        }
+    }
+    code_index_unlock();
+    
+    Lister_Result l_result = run_lister(app, lister);
+    Tiny_Jump result = {};
+    if (!l_result.canceled && l_result.user_data != 0){
+        block_copy_struct(&result, (Tiny_Jump*)l_result.user_data);
+    }
+    
+    if (result.buffer != 0){
+        View_ID view = get_this_ctx_view(app, Access_Always);
+        jump_to_location(app, view, result.buffer, result.pos);
+    }
 }
 
 CUSTOM_COMMAND_SIG(yuval_list_all_macros_lister)
