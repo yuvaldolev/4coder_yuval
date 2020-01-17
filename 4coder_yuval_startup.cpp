@@ -1,3 +1,19 @@
+// TODO(rjf): This is only being used to check if a font file exists because
+// there's a bug in try_create_new_face that crashes the program if a font is
+// not found. This function is only necessary until that is fixed.
+static b32
+IsFileReadable(String_Const_u8 path)
+{
+    b32 result = 0;
+    FILE *file = fopen((char *)path.str, "r");
+    if(file)
+    {
+        result = 1;
+        fclose(file);
+    }
+    return result;
+}
+
 CUSTOM_COMMAND_SIG(yuval_startup)
 CUSTOM_DOC("Yuval startup event.")
 {
@@ -55,6 +71,9 @@ CUSTOM_DOC("Yuval startup event.")
         {
             Scratch_Block scratch(app);
             String_Const_u8 bin_path = system_get_path(scratch, SystemPath_Binary);
+
+            // NOTE(rjf): Fallback font.
+            Face_ID face_that_should_totally_be_there = get_face_id(app, 0);
             
             // NOTE(rjf): Title font.
             {
@@ -64,9 +83,17 @@ CUSTOM_DOC("Yuval startup event.")
                     desc.parameters.pt_size = 18;
                     desc.parameters.bold = 0;
                     desc.parameters.italic = 0;
-                    desc.parameters.hinting = 1;
+                    desc.parameters.hinting = 0;
                 }
-                global_styled_title_face = try_create_new_face(app, &desc);
+
+                if(IsFileReadable(desc.font.file_name))
+                {
+                    global_styled_title_face = try_create_new_face(app, &desc);
+                }
+                else
+                {
+                    global_styled_title_face = face_that_should_totally_be_there;
+                }
             }
             
             // NOTE(rjf): Label font.
@@ -77,9 +104,17 @@ CUSTOM_DOC("Yuval startup event.")
                     desc.parameters.pt_size = 10;
                     desc.parameters.bold = 1;
                     desc.parameters.italic = 1;
-                    desc.parameters.hinting = 1;
+                    desc.parameters.hinting = 0;
                 }
-                global_styled_label_face = try_create_new_face(app, &desc);
+
+                if(IsFileReadable(desc.font.file_name))
+                {
+                    global_styled_label_face = try_create_new_face(app, &desc);
+                }
+                else
+                {
+                    global_styled_label_face = face_that_should_totally_be_there;
+                }
             }
             
             // NOTE(rjf): Small code font.
@@ -92,9 +127,17 @@ CUSTOM_DOC("Yuval startup event.")
                     desc.parameters.pt_size = normal_code_desc.parameters.pt_size - 1;
                     desc.parameters.bold = 1;
                     desc.parameters.italic = 1;
-                    desc.parameters.hinting = 1;
+                    desc.parameters.hinting = 0;
                 }
-                global_small_code_face = try_create_new_face(app, &desc);
+                
+                if(IsFileReadable(desc.font.file_name))
+                {
+                    global_small_code_face = try_create_new_face(app, &desc);
+                }
+                else
+                {
+                    global_small_code_face = face_that_should_totally_be_there;
+                }
             }
         }
     }

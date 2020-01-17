@@ -1,5 +1,7 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "4coder_default_include.cpp"
 #include "generated/managed_id_metadata.cpp"
 
