@@ -29,7 +29,7 @@ yuval_render_cursor(Application_Links *app, View_ID view_id, b32 is_active_view,
             i64 mark_pos = global_mark_positions[0];
             
             if (is_active_view)
-            {   
+            {
                 // NOTE(rjf): Draw cursor.
                 {
                     static Rect_f32 rect = {0};
@@ -116,8 +116,11 @@ yuval_render_cursor(Application_Links *app, View_ID view_id, b32 is_active_view,
 #endif
                 }
                 
-                paint_text_color_pos(app, text_layout_id, cursor_pos,
-                                     fcolor_id(defcolor_at_cursor));
+                if (global_edit_mode) {
+                    paint_text_color_pos(app, text_layout_id, cursor_pos,
+                                        fcolor_id(defcolor_at_cursor));
+                }
+                
                 draw_character_wire_frame(app, text_layout_id, mark_pos,
                                           roundness, outline_thickness,
                                           fcolor_id(defcolor_mark));
@@ -138,8 +141,6 @@ yuval_render_cursor(Application_Links *app, View_ID view_id, b32 is_active_view,
                 draw_character_wire_frame(app, text_layout_id, mark_pos,
                                           roundness, outline_thickness,
                                           COLOR);
-                
-                
             }
             
         }

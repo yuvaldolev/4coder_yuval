@@ -14,16 +14,19 @@
 #include "4coder_fleury_plot.cpp"
 #include "4coder_fleury_calc.cpp"
 
+#define YUVAL_PRINTABLE_STRING(string) ((i32)((string).size)), ((string).str)
+
 global_const f32 BUILD_PANEL_COLLAPSED_P = 0.05f;
 global_const f32 BUILD_PANEL_EXPANDED_P = 0.85f;
 global_const ARGB_Color BUILD_VIEW_BACKGROUND_COLOR = 0xFF121212;
 
+// TODO(yuval): Make this changeable somehome (maybe through command line arguments?) 
+global_const String_Const_u8 global_projects_master_file_path = string_u8_litinit("/Users/yuvaldolev/4ed/build/projects.prj");
+
 global b32 global_edit_mode = true;
 
-global char* global_projects_master_file_path = "/Users/yuvaldolev/4ed/build/projects.prj";
-
 global View_ID global_build_view;
-global char global_build_file_path[4096] = "./build.sh";
+global u8 global_build_file_path[4096] = "./build.sh";
 
 #include "4coder_yuval_theme.cpp"
 #include "4coder_yuval_startup.cpp"
@@ -245,7 +248,9 @@ Fleury4RenderFunctionHelper(Application_Links *app, View_ID view, Buffer_ID buff
             Range_i64 function_name_range = Ii64(token->pos, token->pos+token->size);
             String_Const_u8 function_name = push_buffer_range(app, scratch, buffer, function_name_range);
             
-            Fleury4RenderRangeHighlight(app, view, text_layout_id, function_name_range);
+            if (global_edit_mode) {
+                Fleury4RenderRangeHighlight(app, view, text_layout_id, function_name_range);
+            }
             
             // NOTE(rjf): Find active parameter.
             int active_parameter_index = 0;
@@ -472,13 +477,11 @@ Fleury4RenderBuffer(Application_Links *app, View_ID view_id, Face_ID face_id,
     
     // NOTE(allen): Token colorizing
     Token_Array token_array = get_token_array_from_buffer(app, buffer);
-    if(token_array.tokens != 0)
-    {
+    if(token_array.tokens != 0) {
         yuval_draw_cpp_token_colors(app, text_layout_id, &token_array);
         
         // NOTE(yuval): Scan for TODOs, NOTEs, IMPORTANTs and STUDYs
-        if(global_config.use_comment_keyword)
-        {
+        if(global_config.use_comment_keyword) {
             char user_string_buf[256] = {0};
             String_Const_u8 user_string = {0};
             {
@@ -495,12 +498,11 @@ Fleury4RenderBuffer(Application_Links *app, View_ID view_id, Face_ID face_id,
                 {string_u8_litexpr("STUDY"), 0xFF259FAE},
                 {user_string, 0xFF007878},
             };
+
             draw_comment_highlights(app, buffer, text_layout_id,
                                     &token_array, pairs, ArrayCount(pairs));
         }
-    }
-    else
-    {
+    } else {
         Range_i64 visible_range = text_layout_get_visible_range(app, text_layout_id);
         paint_text_color_fcolor(app, text_layout_id, visible_range, fcolor_id(defcolor_text_default));
     }
@@ -565,7 +567,7 @@ Fleury4RenderBuffer(Application_Links *app, View_ID view_id, Face_ID face_id,
     }
     
     // NOTE(rjf): Token highlight
-    {
+    if (global_edit_mode) {
         Token_Iterator_Array it = token_iterator_pos(0, &token_array, cursor_pos);
         Token *token = token_it_read(&it);
         if(token && token->kind == TokenBaseKind_Identifier)
@@ -574,7 +576,7 @@ Fleury4RenderBuffer(Application_Links *app, View_ID view_id, Face_ID face_id,
                                         Ii64(token->pos, token->pos + token->size));
         }
     }
-    
+
     // NOTE(allen): Color parens
     if(global_config.use_paren_helper)
     {

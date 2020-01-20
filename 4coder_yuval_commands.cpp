@@ -91,14 +91,37 @@ CUSTOM_DOC("Deletes all characters from the cursor position to the end of the li
     }
 
     Buffer_ID buffer = view_get_buffer(app, view, Access_Write);
-
-    String_Const_u8 zero_string = {};
-    buffer_replace_range(app, buffer, range, zero_string);
+    buffer_replace_range(app, buffer, range, string_u8_empty);
 }
 
 CUSTOM_COMMAND_SIG(yuval_save_and_make_without_asking)
-CUSTOM_DOC("Saves all dirty panels and executes the global build file")
+CUSTOM_DOC("Saves all dirty buffers and executes the global build file.")
 {
+    
+}
+
+CUSTOM_COMMAND_SIG(yuval_kill_all_buffers)
+CUSTOM_DOC("Saves all dirty buffers and kills all open buffers.")
+{
+    Scratch_Block scratch(app);
+
+    save_all_dirty_buffers(app);
+    
+    i32 buffer_count = get_buffer_count(app);
+    Buffer_ID* buffers_to_kill = push_array(scratch, Buffer_ID, buffer_count);
+
+    i32 buffer_index = 0;
+    for (Buffer_ID buffer = get_buffer_next(app, 0, Access_Always);
+         buffer != 0;
+         buffer = get_buffer_next(app, buffer, Access_Always), ++buffer_index) {
+        buffers_to_kill[buffer_index] = buffer;
+    }
+
+    for (buffer_index = 0;
+         buffer_index < buffer_count;
+         ++buffer_index) {
+        buffer_kill(app, buffers_to_kill[buffer_index], BufferKill_AlwaysKill);
+    }
 }
 
 function b32
@@ -182,6 +205,51 @@ yuval_commands__string_consume_word(String_Const_u8* source) {
     return result;
 }
 
+function void
+yuval_commands__open_files(Application_Links* app, View_ID view, Arena* arena, String_u8 dir, b32 recursive, u64* latest_file_write_time) {
+    u64 dir_size = dir.size;
+
+    File_List dir_files = system_get_file_list(arena, dir.string);
+    for (u32 file_index = 0;
+            file_index < dir_files.count;
+            ++file_index) {
+        File_Info* info = dir_files.infos[file_index];
+
+        String_u8 file_name = dir;
+        string_append(&file_name, info->file_name);
+
+        if ((info->attributes.flags & FileAttribute_IsDirectory) && recursive) {
+            string_append_character(&file_name, '/');
+            yuval_commands__open_files(app, view, arena, file_name, recursive, latest_file_write_time);
+        } else {
+            String_Const_u8 file_extension = string_file_extension(info->file_name);
+
+            b32 code_file = false;
+
+            String_Const_u8_Array extensions = global_config.code_exts;
+            for (i32 extension_index = 0;
+                extension_index < extensions.count;
+                ++extension_index) {
+                if (string_match(file_extension, extensions.strings[extension_index])) {
+                    code_file = true;
+                    break;
+                }
+            }
+
+            if (code_file) {
+                Buffer_ID buffer;
+                open_file(app, &buffer, file_name.string, true, true);
+
+                u64 file_write_time = info->attributes.last_write_time;
+                if (file_write_time > *latest_file_write_time) {
+                    view_set_buffer(app, view, buffer, 0);
+                    *latest_file_write_time = file_write_time;
+                }
+            }
+        }
+    }
+}
+
 CUSTOM_COMMAND_SIG(yuval_switch_project)
 CUSTOM_DOC("Closes the current project and displays the project list")
 {
@@ -192,9 +260,15 @@ CUSTOM_DOC("Closes the current project and displays the project list")
 
     // NOTE(yuval): Open the projects master file
     Plat_Handle projects_master_file_handle;
-    if (!system_load_handle(scratch, global_projects_master_file_path, &projects_master_file_handle)) {
-        print_message(app, string_u8_litexpr("Failed to open the Projects Master File!\n"));
-        return;
+    {
+        u8 *c_path = push_array(scratch, u8, global_projects_master_file_path.size + 1);
+        block_copy(c_path, global_projects_master_file_path.str, global_projects_master_file_path.size);
+        c_path[global_projects_master_file_path.size] = 0;
+
+        if (!system_load_handle(scratch, (char*)c_path, &projects_master_file_handle)) {
+            print_message(app, string_u8_litexpr("Failed to open the Projects Master File!\n"));
+            return;
+        }
     }
 
     // NOTE(yuval): Read the projects master file
@@ -260,14 +334,17 @@ CUSTOM_DOC("Closes the current project and displays the project list")
     // NOTE(yuval): Open the project
     //
     
+    // NOTE(yuval): Kill all open buffers
+    yuval_kill_all_buffers(app);
+
     // NOTE(yuval): Open the selected project file
     Plat_Handle project_file_handle;
     {
-        u8 *c_project_file_path = push_array(scratch, u8, project_file_path->size + 1);
-        block_copy(c_project_file_path, project_file_path->str, project_file_path->size);
-        c_project_file_path[project_file_path->size] = 0;
+        u8 *c_path = push_array(scratch, u8, project_file_path->size + 1);
+        block_copy(c_path, project_file_path->str, project_file_path->size);
+        c_path[project_file_path->size] = 0;
 
-        if (!system_load_handle(scratch, (char*)c_project_file_path, &project_file_handle)) {
+        if (!system_load_handle(scratch, (char*)c_path, &project_file_handle)) {
             print_message(app, string_u8_litexpr("Failed to open the selected project file!\n"));
             return;
         }
@@ -287,11 +364,13 @@ CUSTOM_DOC("Closes the current project and displays the project list")
     system_load_close(project_file_handle);
 
     // NOTE(yuval): Parse the project file
-    // [] Find Build Script Path
     // [] Find & Open Code Files
 
     b32 parsing_code_section = false;
     b32 parsing_build_section = false;
+
+    View_ID view = get_active_view(app, Access_ReadWriteVisible);
+    u64 latest_file_write_time = 0;
 
     for (;;) {
         String_Const_u8 line = yuval_commands__string_consume_line(&project_file);
@@ -301,6 +380,7 @@ CUSTOM_DOC("Closes the current project and displays the project list")
         }
 
         line = string_skip_chop_whitespace(line);
+
         if (yuval_commands__string_is_empty(line)){
             continue;
         }
@@ -323,7 +403,27 @@ CUSTOM_DOC("Closes the current project and displays the project list")
                 parsing_build_section = true;
             }
         } else {
-            if (parsing_build_section) {
+            if (parsing_code_section) {
+                u8 c_dir[4096] = {};
+                String_u8 dir = Su8(c_dir, 0, sizeof(c_dir));
+
+                // NOTE(yuval): Append the project file's directory
+                string_append(&dir, string_remove_last_folder(*project_file_path));
+
+                // NOTE(yuval): Append the relative directory to open and check for recursive opening
+                b32 recursive_open;
+                if (line.str[line.size - 1] == '*') {
+                    string_append(&dir, string_chop(line, 2));
+                    recursive_open = true;
+                } else {
+                    string_append(&dir, line);
+                    recursive_open = false;
+                }
+
+                string_append_character(&dir, '/');
+
+                yuval_commands__open_files(app, view, scratch, dir, recursive_open, &latest_file_write_time);
+            } else if (parsing_build_section) {
                 String_Const_u8 os = yuval_commands__string_consume_word(&line);
                 b32 this_os = false;
 #if OS_MAC
@@ -338,8 +438,12 @@ CUSTOM_DOC("Closes the current project and displays the project list")
                 
                 if (this_os) {
                     String_Const_u8 build_file_path = yuval_commands__string_consume_word(&line);
-                    printf("build_file_path: '%.*s'\n",
-                        (i32)build_file_path.size, build_file_path.str);
+
+                    // NOTE(yuval): set the global build file path to the project's build file path
+                    String_u8 global_build_file_path_str = Su8(global_build_file_path, 0, sizeof(global_build_file_path) - 1);
+                    string_append(&global_build_file_path_str, string_remove_last_folder(*project_file_path));
+                    string_append(&global_build_file_path_str, build_file_path);
+                    string_null_terminate(&global_build_file_path_str);
                 }
             }
         }
@@ -347,13 +451,18 @@ CUSTOM_DOC("Closes the current project and displays the project list")
 }
 
 CUSTOM_COMMAND_SIG(yuval_modify_projects)
-CUSTOM_DOC("Opens the project list file in the current panel")
+CUSTOM_DOC("Opens the master project list file in the current panel.")
 {
-    
+    View_ID view = get_active_view(app, Access_ReadWriteVisible);
+
+    Buffer_ID buffer;
+    open_file(app, &buffer, global_projects_master_file_path, true, true);
+
+    view_set_buffer(app, view, buffer, 0);
 }
 
 CUSTOM_COMMAND_SIG(yuval_command_lister)
-CUSTOM_DOC("Displays yuval's command lister in the current panel")
+CUSTOM_DOC("Displays yuval's command lister in the current panel.")
 {
     Scratch_Block scratch(app);
 
