@@ -5,16 +5,16 @@ static void
 yuval_update_dark_theme(Application_Links *app) {
     // NOTE(yuval): Color Constants
     ARGB_Color background_color = 0xFF201F21;
-
+    
     ARGB_Color text_default_color = 0xFFA89A8A;
     ARGB_Color comment_color = 0xFF7D7D7D;
     ARGB_Color keyword_color = 0xFFB5913B;
     ARGB_Color constant_color = 0xFF718C40;
-
+    
     ARGB_Color cursor_color = (global_edit_mode ? 0xFFFF4242 : 0xFF78D875);
     ARGB_Color at_cursor_color = (global_edit_mode ? background_color : text_default_color);
     ARGB_Color list_item_active_color = 0xFF934420;
-
+    
     // NOTE(yuval): Make color table
     Color_Table *table = &active_color_table;
     Arena *arena = &global_theme_arena;
