@@ -97,7 +97,6 @@ CUSTOM_DOC("Deletes all characters from the cursor position to the end of the li
 CUSTOM_COMMAND_SIG(yuval_save_and_make_without_asking)
 CUSTOM_DOC("Saves all dirty buffers and executes the global build file.")
 {
-    
 }
 
 CUSTOM_COMMAND_SIG(yuval_kill_all_buffers)
@@ -363,8 +362,11 @@ CUSTOM_DOC("Closes the current project and displays the project list")
 
     system_load_close(project_file_handle);
 
+    // NOTE(yuval): Change the working directory to the project file's directory
+    String_Const_u8 project_dir = string_remove_last_folder(*project_file_path);
+    set_hot_directory(app, project_dir);
+
     // NOTE(yuval): Parse the project file
-    // [] Find & Open Code Files
 
     b32 parsing_code_section = false;
     b32 parsing_build_section = false;
@@ -408,7 +410,7 @@ CUSTOM_DOC("Closes the current project and displays the project list")
                 String_u8 dir = Su8(c_dir, 0, sizeof(c_dir));
 
                 // NOTE(yuval): Append the project file's directory
-                string_append(&dir, string_remove_last_folder(*project_file_path));
+                string_append(&dir, project_dir);
 
                 // NOTE(yuval): Append the relative directory to open and check for recursive opening
                 b32 recursive_open;
@@ -441,7 +443,7 @@ CUSTOM_DOC("Closes the current project and displays the project list")
 
                     // NOTE(yuval): set the global build file path to the project's build file path
                     String_u8 global_build_file_path_str = Su8(global_build_file_path, 0, sizeof(global_build_file_path) - 1);
-                    string_append(&global_build_file_path_str, string_remove_last_folder(*project_file_path));
+                    string_append(&global_build_file_path_str, project_dir);
                     string_append(&global_build_file_path_str, build_file_path);
                     string_null_terminate(&global_build_file_path_str);
                 }
