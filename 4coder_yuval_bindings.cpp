@@ -25,7 +25,7 @@ DEFINE_MODAL_KEY(yuval_modal_f, paste_and_indent);
 DEFINE_MODAL_KEY(yuval_modal_g, goto_line);
 DEFINE_MODAL_KEY(yuval_modal_h, yuval_jump_lister_other_panel);
 DEFINE_MODAL_KEY(yuval_modal_i, replace_in_range);
-DEFINE_MODAL_KEY(yuval_modal_j, yuval_jump_lister);
+DEFINE_MODAL_KEY(yuval_modal_j, yuval_jump_to_definition_other_panel);
 DEFINE_MODAL_KEY(yuval_modal_k, delete_line);
 DEFINE_MODAL_KEY(yuval_modal_l, list_all_substring_locations_case_insensitive);
 DEFINE_MODAL_KEY(yuval_modal_m, yuval_save_and_make_without_asking);

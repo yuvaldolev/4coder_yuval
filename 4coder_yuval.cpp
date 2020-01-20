@@ -20,6 +20,8 @@ global_const ARGB_Color BUILD_VIEW_BACKGROUND_COLOR = 0xFF121212;
 
 global b32 global_edit_mode = true;
 
+global char* global_projects_master_file_path = "/Users/yuvaldolev/4ed/build/projects.prj";
+
 global View_ID global_build_view;
 global char global_build_file_path[4096] = "./build.sh";
 
@@ -474,7 +476,7 @@ Fleury4RenderBuffer(Application_Links *app, View_ID view_id, Face_ID face_id,
     {
         yuval_draw_cpp_token_colors(app, text_layout_id, &token_array);
         
-        // NOTE(allen): Scan for TODOs and NOTEs
+        // NOTE(yuval): Scan for TODOs, NOTEs, IMPORTANTs and STUDYs
         if(global_config.use_comment_keyword)
         {
             char user_string_buf[256] = {0};
@@ -487,9 +489,11 @@ Fleury4RenderBuffer(Application_Links *app, View_ID view_id, Face_ID face_id,
             
             Comment_Highlight_Pair pairs[] =
             {
-                {string_u8_litexpr("NOTE"), finalize_color(defcolor_comment_pop, 0)},
-                {string_u8_litexpr("TODO"), finalize_color(defcolor_comment_pop, 1)},
-                {user_string, 0xffffdd23},
+                {string_u8_litexpr("NOTE"), 0xFF459b54},
+                {string_u8_litexpr("TODO"), 0xFFD61B1B},
+                {string_u8_litexpr("IMPORTANT"), 0xFFC2C22D},
+                {string_u8_litexpr("STUDY"), 0xFF259FAE},
+                {user_string, 0xFF007878},
             };
             draw_comment_highlights(app, buffer, text_layout_id,
                                     &token_array, pairs, ArrayCount(pairs));
