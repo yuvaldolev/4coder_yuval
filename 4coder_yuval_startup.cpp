@@ -124,7 +124,7 @@ CUSTOM_DOC("Yuval startup event.")
                 Face_Description desc = {0};
                 {
                     desc.font.file_name =  push_u8_stringf(scratch, "%.*sfonts/Inconsolata-Regular.ttf", string_expand(bin_path));
-                    desc.parameters.pt_size = normal_code_desc.parameters.pt_size - 1;
+                    desc.parameters.pt_size = normal_code_desc.parameters.pt_size;
                     desc.parameters.bold = 1;
                     desc.parameters.italic = 1;
                     desc.parameters.hinting = 0;

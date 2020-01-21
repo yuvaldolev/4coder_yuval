@@ -3,13 +3,15 @@
 #include <string.h>
 
 #include "4coder_default_include.cpp"
+
+#include "4coder_default_map.cpp"
+#include "4coder_mac_map.cpp"
 #include "generated/managed_id_metadata.cpp"
 
 #pragma warning(disable : 4706)
 
 #include "4coder_fleury_utilities.cpp"
 #include "4coder_yuval_ubiquitous.cpp" // TODO(yuval): Move this to my includes section
-#include "4coder_fleury_power_mode.cpp"
 #include "4coder_fleury_divider_comments.cpp"
 #include "4coder_fleury_plot.cpp"
 #include "4coder_fleury_calc.cpp"
@@ -35,6 +37,32 @@ global u8 global_build_file_path[4096] = "./build.sh";
 #include "4coder_yuval_cursor.cpp"
 #include "4coder_yuval_code_peek.cpp"
 #include "4coder_yuval_brace.cpp"
+
+//~
+
+function void
+setup_built_in_mapping(Application_Links *app, String_Const_u8 name, Mapping *mapping, i64 global_id, i64 file_id, i64 code_id){
+    Thread_Context *tctx = get_thread_context(app);
+    if (string_match(name, string_u8_litexpr("default"))){
+        mapping_release(tctx, mapping);
+        mapping_init(tctx, mapping);
+        setup_default_mapping(mapping, global_id, file_id, code_id);
+    }
+    else if (string_match(name, string_u8_litexpr("mac-default"))){
+        mapping_release(tctx, mapping);
+        mapping_init(tctx, mapping);
+        setup_mac_mapping(mapping, global_id, file_id, code_id);
+    }
+    else if (string_match(name, string_u8_litexpr("choose"))){
+        mapping_release(tctx, mapping);
+        mapping_init(tctx, mapping);
+#if OS_MAC
+        setup_mac_mapping(mapping, global_id, file_id, code_id);
+#else
+        setup_default_mapping(mapping, global_id, file_id, code_id);
+#endif
+    }
+}
 
 //~ NOTE(rjf): Error annotations
 
@@ -248,10 +276,6 @@ Fleury4RenderFunctionHelper(Application_Links *app, View_ID view, Buffer_ID buff
             Range_i64 function_name_range = Ii64(token->pos, token->pos+token->size);
             String_Const_u8 function_name = push_buffer_range(app, scratch, buffer, function_name_range);
             
-            if (global_edit_mode) {
-                Fleury4RenderRangeHighlight(app, view, text_layout_id, function_name_range);
-            }
-            
             // NOTE(rjf): Find active parameter.
             int active_parameter_index = 0;
             static int last_active_parameter = -1;
@@ -420,32 +444,9 @@ Fleury4RenderFunctionHelper(Application_Links *app, View_ID view, Buffer_ID buff
                                 text_position = draw_string(app, face, pre_highlight_def,
                                                             text_position, finalize_color(defcolor_comment, 0));
                                 
-                                // NOTE(rjf): Spawn power mode particles if we've changed active parameters.
-                                if(active_parameter_has_increased_by_one && global_power_mode_enabled)
-                                {
-                                    Vec2_f32 camera = Fleury4GetCameraFromView(app, view);
-                                    
-                                    f32 text_width = get_string_advance(app, face, highlight_param);
-                                    
-                                    for(int particle_i = 0; particle_i < 600; ++particle_i)
-                                    {
-                                        f32 movement_angle = RandomF32(-3.1415926535897f*3.f/2.f, 3.1415926535897f*1.f/3.f);
-                                        f32 velocity_magnitude = RandomF32(20.f, 180.f);
-                                        f32 velocity_x = cosf(movement_angle)*velocity_magnitude;
-                                        f32 velocity_y = sinf(movement_angle)*velocity_magnitude;
-                                        Fleury4Particle(text_position.x + 4 + camera.x + (particle_i/500.f)*text_width,
-                                                        text_position.y + 8 + camera.y,
-                                                        velocity_x, velocity_y,
-                                                        0xffffffff,
-                                                        RandomF32(1.5f, 8.f),
-                                                        RandomF32(0.5f, 6.f));
-                                    }
-                                    
-                                    global_power_mode.screen_shake += RandomF32(20.f, 40.f);
-                                }
-                                
                                 text_position = draw_string(app, face, highlight_param,
                                                             text_position, finalize_color(defcolor_comment_pop, 1));
+
                                 text_position = draw_string(app, face, post_highlight_def,
                                                             text_position, finalize_color(defcolor_comment, 0));
                                 
@@ -465,7 +466,7 @@ Fleury4RenderFunctionHelper(Application_Links *app, View_ID view, Buffer_ID buff
 //~ NOTE(rjf): Buffer Render
 
 static void
-Fleury4RenderBuffer(Application_Links *app, View_ID view_id, Face_ID face_id,
+yuval_render_buffer(Application_Links *app, View_ID view_id, Face_ID face_id,
                     Buffer_ID buffer, Text_Layout_ID text_layout_id,
                     Rect_f32 rect, Frame_Info frame_info)
 {
@@ -668,12 +669,6 @@ Fleury4RenderBuffer(Application_Links *app, View_ID view_id, Face_ID face_id,
             }
         }
     }
-    
-    // NOTE(rjf): Draw power mode.
-    {
-        Fleury4RenderPowerMode(app, view_id, face_id, frame_info);
-    }
-    
 }
 
 //~ NOTE(rjf): Render hook
@@ -769,11 +764,6 @@ Fleury4Render(Application_Links *app, Frame_Info frame_info, View_ID view_id)
     
     // NOTE(allen): begin buffer render
     Buffer_Point buffer_point = scroll.position;
-    if(is_active_view)
-    {
-        buffer_point.pixel_shift.y += global_power_mode.screen_shake*1.f;
-        global_power_mode.screen_shake -= global_power_mode.screen_shake * frame_info.animation_dt * 12.f;
-    }
     Text_Layout_ID text_layout_id = text_layout_create(app, buffer, region, buffer_point);
     
     // NOTE(allen): draw line numbers
@@ -783,7 +773,7 @@ Fleury4Render(Application_Links *app, Frame_Info frame_info, View_ID view_id)
     }
     
     // NOTE(allen): draw the buffer
-    Fleury4RenderBuffer(app, view_id, face_id, buffer, text_layout_id, region, frame_info);
+    yuval_render_buffer(app, view_id, face_id, buffer, text_layout_id, region, frame_info);
     
     text_layout_free(app, text_layout_id);
     draw_set_clip(app, prev_clip);
@@ -956,6 +946,57 @@ static Layout_Item_List
 Fleury4Layout(Application_Links *app, Arena *arena, Buffer_ID buffer, Range_i64 range, Face_ID face, f32 width)
 {
     return(Fleury4LayoutInner(app, arena, buffer, range, face, width, LayoutVirtualIndent_Off));
+}
+
+//~ NOTE(yuval): Custom tick hook
+
+function void
+yuval_tick(Application_Links *app, Frame_Info frame_info){
+    Scratch_Block scratch(app);
+    
+    for (Buffer_Modified_Node *node = global_buffer_modified_set.first;
+         node != 0;
+         node = node->next){
+        Temp_Memory_Block temp(scratch);
+        Buffer_ID buffer_id = node->buffer;
+        
+        Managed_Scope scope = buffer_get_managed_scope(app, buffer_id);
+        
+        String_Const_u8 contents = push_whole_buffer(app, scratch, buffer_id);
+        Token_Array *tokens_ptr = scope_attachment(app, scope, attachment_tokens, Token_Array);
+        if (tokens_ptr == 0){
+            continue;
+        }
+        if (tokens_ptr->count == 0){
+            continue;
+        }
+        Token_Array tokens = *tokens_ptr;
+        
+        Arena arena = make_arena_system(KB(16));
+        Code_Index_File *index = push_array_zero(&arena, Code_Index_File, 1);
+        index->buffer = buffer_id;
+
+        // TODO(yuval): Move this to my OWN custom layer
+        index->string_to_index_note = make_table_Data_u64(arena.base_allocator, 500);
+        
+        Generic_Parse_State state = {};
+        generic_parse_init(app, &arena, contents, &tokens, &state);
+        // TODO(allen): Actually determine this in a fair way.
+        // Maybe switch to an enum.
+        state.do_cpp_parse = true;
+        generic_parse_full_input_breaks(index, &state, max_i32);
+        
+        code_index_lock();
+        code_index_set_file(buffer_id, arena, index);
+        code_index_unlock();
+        buffer_clear_layout_cache(app, buffer_id);
+    }
+    
+    buffer_modified_set_clear();
+    
+    if (tick_all_fade_ranges(frame_info.animation_dt)){
+        animate_in_n_milliseconds(app, 0);
+    }
 }
 
 //~ NOTE(rjf): Custom layer initialization
