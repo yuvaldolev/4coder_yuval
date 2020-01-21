@@ -1,20 +1,6 @@
 
 //~ Commands from Ryan Fleury's Custom Layer
 
-CUSTOM_COMMAND_SIG(fleury_write_text_input)
-CUSTOM_DOC("Inserts whatever text was used to trigger this command.")
-{
-    write_text_input(app);
-    Fleury4SpawnPowerModeParticles(app, get_active_view(app, Access_ReadWriteVisible));
-}
-
-CUSTOM_COMMAND_SIG(fleury_write_text_and_auto_indent)
-CUSTOM_DOC("Inserts text and auto-indents the line on which the cursor sits if any of the text contains 'layout punctuation' such as ;:{}()[]# and new lines.")
-{
-    write_text_and_auto_indent(app);
-    Fleury4SpawnPowerModeParticles(app, get_active_view(app, Access_ReadWriteVisible));
-}
-
 CUSTOM_COMMAND_SIG(fleury_write_zero_struct)
 CUSTOM_DOC("At the cursor, insert a ' = {0};'.")
 {

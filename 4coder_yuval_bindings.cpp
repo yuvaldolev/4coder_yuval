@@ -23,9 +23,9 @@ DEFINE_MODAL_KEY(yuval_modal_d, yuval_kill_to_end_of_line);
 DEFINE_MODAL_KEY(yuval_modal_e, view_buffer_other_panel);
 DEFINE_MODAL_KEY(yuval_modal_f, paste_and_indent);
 DEFINE_MODAL_KEY(yuval_modal_g, goto_line);
-DEFINE_MODAL_KEY(yuval_modal_h, yuval_jump_lister_other_panel);
+DEFINE_MODAL_KEY(yuval_modal_h, yuval_jump_lister);
 DEFINE_MODAL_KEY(yuval_modal_i, replace_in_range);
-DEFINE_MODAL_KEY(yuval_modal_j, yuval_jump_to_definition_other_panel);
+DEFINE_MODAL_KEY(yuval_modal_j, jump_to_definition);
 DEFINE_MODAL_KEY(yuval_modal_k, delete_line);
 DEFINE_MODAL_KEY(yuval_modal_l, list_all_substring_locations_case_insensitive);
 DEFINE_MODAL_KEY(yuval_modal_m, yuval_save_and_make_without_asking);
@@ -43,21 +43,21 @@ DEFINE_MODAL_KEY(yuval_modal_x, yuval_open_matching_file_other_panel);
 DEFINE_MODAL_KEY(yuval_modal_y, redo);
 DEFINE_MODAL_KEY(yuval_modal_z, interactive_open_or_new);
 
-DEFINE_MODAL_KEY(yuval_modal_1, leave_current_input_unhandled); // TODO(yuval): Shouldn't need to bind a key for this? (casey_build_search)
-DEFINE_MODAL_KEY(yuval_modal_2, leave_current_input_unhandled); // TODO(yuval): Available
-DEFINE_MODAL_KEY(yuval_modal_3, leave_current_input_unhandled); // TODO(yuval): Available
-DEFINE_MODAL_KEY(yuval_modal_4, leave_current_input_unhandled); // TODO(yuval): Available
+DEFINE_MODAL_KEY(yuval_modal_1, fleury_code_peek); // TODO(yuval): Shouldn't need to bind a key for this? (casey_build_search)
+DEFINE_MODAL_KEY(yuval_modal_2, fleury_close_code_peek); // TODO(yuval): Available
+DEFINE_MODAL_KEY(yuval_modal_3, fleury_code_peek_go); // TODO(yuval): Available
+DEFINE_MODAL_KEY(yuval_modal_4, fleury_code_peek_go_same_panel); // TODO(yuval): Available
 DEFINE_MODAL_KEY(yuval_modal_5, leave_current_input_unhandled); // TODO(yuval): Available
 DEFINE_MODAL_KEY(yuval_modal_6, leave_current_input_unhandled); // TODO(yuval): Available
 DEFINE_MODAL_KEY(yuval_modal_7, leave_current_input_unhandled); // TODO(yuval): Available
-DEFINE_MODAL_KEY(yuval_modal_8, leave_current_input_unhandled); // TODO(yuval): Available
-DEFINE_MODAL_KEY(yuval_modal_9, leave_current_input_unhandled); // TODO(yuval): Available
+DEFINE_MODAL_KEY(yuval_modal_8, yuval_jump_lister_other_panel); // TODO(yuval): Available
+DEFINE_MODAL_KEY(yuval_modal_9, yuval_jump_to_definition_other_panel); // TODO(yuval): Available
 DEFINE_MODAL_KEY(yuval_modal_0, kill_buffer);
 DEFINE_MODAL_KEY(yuval_modal_minus, command_lister);
 DEFINE_MODAL_KEY(yuval_modal_equals, yuval_command_lister);
 
 DEFINE_MODAL_KEY(yuval_modal_space, set_mark);
-DEFINE_MODAL_KEY(yuval_modal_back_slash, yuval_clean_and_save);
+DEFINE_MODAL_KEY(yuval_modal_back_slash, save); // TODO(yuval): Fix yuval_clean_and_save
 DEFINE_MODAL_KEY(yuval_modal_single_quote, keyboard_macro_replay);
 DEFINE_MODAL_KEY(yuval_modal_comma, goto_beginning_of_file);
 DEFINE_MODAL_KEY(yuval_modal_period, goto_end_of_file);
@@ -66,12 +66,12 @@ DEFINE_MODAL_KEY(yuval_modal_semicolon, list_all_locations);
 DEFINE_MODAL_KEY(yuval_modal_open_bracket, keyboard_macro_start_recording);
 DEFINE_MODAL_KEY(yuval_modal_close_bracket, keyboard_macro_finish_recording);
 
-DEFINE_BIMODAL_KEY(yuval_modal_backspace, backspace_alpha_numeric_boundary, backspace_char);
+DEFINE_BIMODAL_KEY(yuval_modal_backspace, snipe_backward_whitespace_or_token_boundary, backspace_char);
 DEFINE_BIMODAL_KEY(yuval_modal_up, move_up, move_up);
 DEFINE_BIMODAL_KEY(yuval_modal_down, move_down, move_down);
 DEFINE_BIMODAL_KEY(yuval_modal_left, move_left_token_boundary, move_left);
 DEFINE_BIMODAL_KEY(yuval_modal_right, move_right_token_boundary, move_right);
-DEFINE_BIMODAL_KEY(yuval_modal_delete, delete_alpha_numeric_boundary, delete_char);
+DEFINE_BIMODAL_KEY(yuval_modal_delete, snipe_forward_whitespace_or_token_boundary, delete_char);
 DEFINE_BIMODAL_KEY(yuval_modal_home, fleury_home, yuval_home_and_tab);
 DEFINE_BIMODAL_KEY(yuval_modal_end, seek_end_of_line, seek_end_of_line);
 DEFINE_BIMODAL_KEY(yuval_modal_tab, word_complete, word_complete);
@@ -101,28 +101,23 @@ yuval_set_bindings(Mapping *mapping) {
     
     SelectMap(mapid_file);
     ParentMap(mapid_global);
-    BindTextInput(fleury_write_text_input);
-    BindMouse(click_set_cursor_and_mark, MouseCode_Left);
-    BindMouseRelease(click_set_cursor, MouseCode_Left);
-    BindCore(click_set_cursor_and_mark, CoreCode_ClickActivateView);
-    BindMouseMove(click_set_cursor_if_lbutton);
-    
-    // NOTE(yuval) Non-Modal Key Bindings
     {
+        BindTextInput(write_text_input);
+        BindMouse(click_set_cursor_and_mark, MouseCode_Left);
+        BindMouseRelease(click_set_cursor, MouseCode_Left);
+        BindCore(click_set_cursor_and_mark, CoreCode_ClickActivateView);
+        BindMouseMove(click_set_cursor_if_lbutton);
+    
+        // NOTE(yuval) Non-Modal Key Bindings
         Bind(yuval_toggle_edit_mode, KeyCode_Escape);
-        
-        Bind(fleury_code_peek,          KeyCode_Alt, KeyCode_Control);
-        //Bind(fleury_close_code_peek,    KeyCode_Escape);
-        Bind(fleury_code_peek_go,       KeyCode_Return, KeyCode_Control);
-        Bind(fleury_code_peek_go_same_panel, KeyCode_Return, KeyCode_Control, KeyCode_Shift);
-        Bind(fleury_write_zero_struct,  KeyCode_0, KeyCode_Control);
-    }
-    
-    // NOTE(yuval): Modal Key Bindings
-    {
-        Bind(yuval_modal_space, KeyCode_Space);
-        Bind(yuval_modal_space, KeyCode_Space, KeyCode_Shift);
-        
+
+        Bind(move_up_to_blank_line, KeyCode_PageUp);
+        Bind(page_up, KeyCode_PageUp, KeyCode_Shift);
+
+        Bind(move_down_to_blank_line, KeyCode_PageDown);
+        Bind(page_down, KeyCode_PageUp, KeyCode_Shift);
+
+        // NOTE(yuval): Modal Key Bindings
         Bind(yuval_modal_a, KeyCode_A);
         Bind(yuval_modal_b, KeyCode_B);
         Bind(yuval_modal_c, KeyCode_C);
@@ -163,6 +158,9 @@ yuval_set_bindings(Mapping *mapping) {
         Bind(yuval_modal_minus, KeyCode_Minus);
         Bind(yuval_modal_equals, KeyCode_Equal);
         
+        Bind(yuval_modal_space, KeyCode_Space);
+        Bind(yuval_modal_space, KeyCode_Space, KeyCode_Shift);
+
         Bind(yuval_modal_back_slash, KeyCode_BackwardSlash);
         Bind(yuval_modal_single_quote, KeyCode_Quote);
         Bind(yuval_modal_comma, KeyCode_Comma);
@@ -202,33 +200,6 @@ yuval_set_bindings(Mapping *mapping) {
     
     SelectMap(mapid_code);
     ParentMap(mapid_file);
-    BindTextInput(fleury_write_text_and_auto_indent);
-    Bind(move_left_alpha_numeric_boundary,           KeyCode_Left, KeyCode_Control);
-    Bind(move_right_alpha_numeric_boundary,          KeyCode_Right, KeyCode_Control);
-    Bind(move_left_alpha_numeric_or_camel_boundary,  KeyCode_Left, KeyCode_Alt);
-    Bind(move_right_alpha_numeric_or_camel_boundary, KeyCode_Right, KeyCode_Alt);
-    Bind(comment_line_toggle,        KeyCode_Semicolon, KeyCode_Control);
-    Bind(word_complete,              KeyCode_Tab);
-    Bind(auto_indent_range,          KeyCode_Tab, KeyCode_Control);
-    Bind(auto_indent_line_at_cursor, KeyCode_Tab, KeyCode_Shift);
-    Bind(word_complete_drop_down,    KeyCode_Tab, KeyCode_Shift, KeyCode_Control);
-    Bind(write_block,                KeyCode_R, KeyCode_Alt);
-    Bind(write_todo,                 KeyCode_T, KeyCode_Alt);
-    Bind(write_note,                 KeyCode_Y, KeyCode_Alt);
-    Bind(list_all_locations_of_type_definition,               KeyCode_D, KeyCode_Alt);
-    Bind(list_all_locations_of_type_definition_of_identifier, KeyCode_T, KeyCode_Alt, KeyCode_Shift);
-    Bind(open_long_braces,           KeyCode_LeftBracket, KeyCode_Control);
-    Bind(open_long_braces_semicolon, KeyCode_LeftBracket, KeyCode_Control, KeyCode_Shift);
-    Bind(open_long_braces_break,     KeyCode_RightBracket, KeyCode_Control, KeyCode_Shift);
-    Bind(select_surrounding_scope,   KeyCode_LeftBracket, KeyCode_Alt);
-    Bind(select_surrounding_scope_maximal, KeyCode_LeftBracket, KeyCode_Alt, KeyCode_Shift);
-    Bind(select_prev_scope_absolute, KeyCode_RightBracket, KeyCode_Alt);
-    Bind(select_prev_top_most_scope, KeyCode_RightBracket, KeyCode_Alt, KeyCode_Shift);
-    Bind(select_next_scope_absolute, KeyCode_Quote, KeyCode_Alt);
-    Bind(select_next_scope_after_current, KeyCode_Quote, KeyCode_Alt, KeyCode_Shift);
-    Bind(place_in_scope,             KeyCode_ForwardSlash, KeyCode_Alt);
-    Bind(delete_current_scope,       KeyCode_Minus, KeyCode_Alt);
-    Bind(if0_off,                    KeyCode_I, KeyCode_Alt);
-    Bind(open_file_in_quotes,        KeyCode_1, KeyCode_Alt);
-    Bind(open_matching_file_cpp,     KeyCode_2, KeyCode_Alt);
+    {
+        BindTextInput(write_text_and_auto_indent);
 }

@@ -13,7 +13,7 @@ yuval_update_dark_theme(Application_Links *app) {
     
     ARGB_Color cursor_color = (global_edit_mode ? 0xFFFF4242 : 0xFF78D875);
     ARGB_Color at_cursor_color = (global_edit_mode ? background_color : text_default_color);
-    ARGB_Color list_item_active_color = 0xFF934420;
+    ARGB_Color list_item_active_color = 0xFF003A3A;
     
     // NOTE(yuval): Make color table
     Color_Table *table = &active_color_table;
