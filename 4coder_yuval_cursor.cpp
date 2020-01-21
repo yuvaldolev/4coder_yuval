@@ -44,14 +44,16 @@ yuval_render_cursor(Application_Links *app, View_ID view_id, b32 is_active_view,
                     rect.x0 += (x_change) * frame_info.animation_dt * 14.f;
                     rect.y0 += (y_change) * frame_info.animation_dt * 14.f;
                     
+                    f32 main_cursor_roundness;
                     // NOTE(yuval): Normal cursor adjustment
                     if (global_edit_mode) {
                         rect.x1 = rect.x0 + cursor_size_x;
+                        main_cursor_roundness = roundness;
                     } else {
                         rect.x1 = rect.x0 + 1.0f;
-                        roundness = 0.0f;
+                        main_cursor_roundness = 0.0f;
                     }
-
+                    
                     rect.y1 = rect.y0 + cursor_size_y;
                     
                     global_last_cursor_position = global_cursor_position;
@@ -84,14 +86,10 @@ yuval_render_cursor(Application_Links *app, View_ID view_id, b32 is_active_view,
                     {
                         cursor_color = fcolor_argb(0xffde40df);
                     }
-                    else if(global_power_mode_enabled)
-                    {
-                        cursor_color = fcolor_argb(0xffefaf2f);
-                    }
-
+                    
                     // NOTE(rjf): Draw main cursor.
                     {
-                        draw_rectangle(app, rect, roundness, fcolor_resolve(cursor_color));
+                        draw_rectangle(app, rect, main_cursor_roundness, fcolor_resolve(cursor_color));
                     }
                     
                     // NOTE(rjf): Draw cursor glow (because why the hell not).
@@ -118,7 +116,7 @@ yuval_render_cursor(Application_Links *app, View_ID view_id, b32 is_active_view,
                 
                 if (global_edit_mode) {
                     paint_text_color_pos(app, text_layout_id, cursor_pos,
-                                        fcolor_id(defcolor_at_cursor));
+                                         fcolor_id(defcolor_at_cursor));
                 }
                 
                 draw_character_wire_frame(app, text_layout_id, mark_pos,
@@ -128,7 +126,7 @@ yuval_render_cursor(Application_Links *app, View_ID view_id, b32 is_active_view,
             else
             {
                 local_const ARGB_Color COLOR = 0xFF9E9E9E;
-
+                
                 if (global_edit_mode) {
                     draw_character_wire_frame(app, text_layout_id, cursor_pos,
                                               roundness, outline_thickness,
@@ -136,8 +134,8 @@ yuval_render_cursor(Application_Links *app, View_ID view_id, b32 is_active_view,
                 } else {
                     draw_character_i_bar(app, text_layout_id, cursor_pos, COLOR);
                 }
-
-
+                
+                
                 draw_character_wire_frame(app, text_layout_id, mark_pos,
                                           roundness, outline_thickness,
                                           COLOR);

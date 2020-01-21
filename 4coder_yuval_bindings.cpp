@@ -23,7 +23,7 @@ DEFINE_MODAL_KEY(yuval_modal_d, yuval_kill_to_end_of_line);
 DEFINE_MODAL_KEY(yuval_modal_e, view_buffer_other_panel);
 DEFINE_MODAL_KEY(yuval_modal_f, paste_and_indent);
 DEFINE_MODAL_KEY(yuval_modal_g, goto_line);
-DEFINE_MODAL_KEY(yuval_modal_h, yuval_jump_lister);
+DEFINE_MODAL_KEY(yuval_modal_h, yuval_jump_to_definition_other_panel);
 DEFINE_MODAL_KEY(yuval_modal_i, replace_in_range);
 DEFINE_MODAL_KEY(yuval_modal_j, jump_to_definition);
 DEFINE_MODAL_KEY(yuval_modal_k, delete_line);
@@ -51,7 +51,7 @@ DEFINE_MODAL_KEY(yuval_modal_5, leave_current_input_unhandled); // TODO(yuval): 
 DEFINE_MODAL_KEY(yuval_modal_6, leave_current_input_unhandled); // TODO(yuval): Available
 DEFINE_MODAL_KEY(yuval_modal_7, leave_current_input_unhandled); // TODO(yuval): Available
 DEFINE_MODAL_KEY(yuval_modal_8, yuval_jump_lister_other_panel); // TODO(yuval): Available
-DEFINE_MODAL_KEY(yuval_modal_9, yuval_jump_to_definition_other_panel); // TODO(yuval): Available
+DEFINE_MODAL_KEY(yuval_modal_9, yuval_jump_lister); // TODO(yuval): Available
 DEFINE_MODAL_KEY(yuval_modal_0, kill_buffer);
 DEFINE_MODAL_KEY(yuval_modal_minus, command_lister);
 DEFINE_MODAL_KEY(yuval_modal_equals, yuval_command_lister);
@@ -107,16 +107,16 @@ yuval_set_bindings(Mapping *mapping) {
         BindMouseRelease(click_set_cursor, MouseCode_Left);
         BindCore(click_set_cursor_and_mark, CoreCode_ClickActivateView);
         BindMouseMove(click_set_cursor_if_lbutton);
-    
+        
         // NOTE(yuval) Non-Modal Key Bindings
         Bind(yuval_toggle_edit_mode, KeyCode_Escape);
-
+        
         Bind(move_up_to_blank_line, KeyCode_PageUp);
         Bind(page_up, KeyCode_PageUp, KeyCode_Shift);
-
+        
         Bind(move_down_to_blank_line, KeyCode_PageDown);
-        Bind(page_down, KeyCode_PageUp, KeyCode_Shift);
-
+        Bind(page_down, KeyCode_PageDown, KeyCode_Shift);
+        
         // NOTE(yuval): Modal Key Bindings
         Bind(yuval_modal_a, KeyCode_A);
         Bind(yuval_modal_b, KeyCode_B);
@@ -160,7 +160,7 @@ yuval_set_bindings(Mapping *mapping) {
         
         Bind(yuval_modal_space, KeyCode_Space);
         Bind(yuval_modal_space, KeyCode_Space, KeyCode_Shift);
-
+        
         Bind(yuval_modal_back_slash, KeyCode_BackwardSlash);
         Bind(yuval_modal_single_quote, KeyCode_Quote);
         Bind(yuval_modal_comma, KeyCode_Comma);
@@ -196,10 +196,13 @@ yuval_set_bindings(Mapping *mapping) {
         
         Bind(yuval_modal_tab, KeyCode_Tab);
         Bind(yuval_modal_tab, KeyCode_Tab, KeyCode_Shift);
+        
+        Bind(exit_4coder, KeyCode_0, KeyCode_Alt);
     }
     
     SelectMap(mapid_code);
     ParentMap(mapid_file);
     {
         BindTextInput(write_text_and_auto_indent);
+    }
 }

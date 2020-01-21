@@ -2,7 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "4coder_default_include.cpp"
+#define USE_YUVAL_CODE_INDEX 1
+
+#include "4coder_yuval_default_include.cpp"
 
 #include "4coder_default_map.cpp"
 #include "4coder_mac_map.cpp"
@@ -445,8 +447,8 @@ Fleury4RenderFunctionHelper(Application_Links *app, View_ID view, Buffer_ID buff
                                                             text_position, finalize_color(defcolor_comment, 0));
                                 
                                 text_position = draw_string(app, face, highlight_param,
-                                                            text_position, finalize_color(defcolor_comment_pop, 1));
-
+                                                            text_position, 0xFFB74D45);
+                                
                                 text_position = draw_string(app, face, post_highlight_def,
                                                             text_position, finalize_color(defcolor_comment, 0));
                                 
@@ -499,7 +501,7 @@ yuval_render_buffer(Application_Links *app, View_ID view_id, Face_ID face_id,
                 {string_u8_litexpr("STUDY"), 0xFF259FAE},
                 {user_string, 0xFF007878},
             };
-
+            
             draw_comment_highlights(app, buffer, text_layout_id,
                                     &token_array, pairs, ArrayCount(pairs));
         }
@@ -568,7 +570,7 @@ yuval_render_buffer(Application_Links *app, View_ID view_id, Face_ID face_id,
     }
     
     // NOTE(rjf): Token highlight
-    if (global_edit_mode) {
+    if (global_edit_mode && is_active_view) {
         Token_Iterator_Array it = token_iterator_pos(0, &token_array, cursor_pos);
         Token *token = token_it_read(&it);
         if(token && token->kind == TokenBaseKind_Identifier)
@@ -577,7 +579,7 @@ yuval_render_buffer(Application_Links *app, View_ID view_id, Face_ID face_id,
                                         Ii64(token->pos, token->pos + token->size));
         }
     }
-
+    
     // NOTE(allen): Color parens
     if(global_config.use_paren_helper)
     {
@@ -691,7 +693,7 @@ Fleury4Render(Application_Links *app, Frame_Info frame_info, View_ID view_id)
         } else {
             color = fcolor_resolve(fcolor_id(defcolor_back));
         }
-
+        
         draw_rectangle(app, region, 0.f, color);
         draw_margin(app, view_rect, region, color);
     }
@@ -950,6 +952,7 @@ Fleury4Layout(Application_Links *app, Arena *arena, Buffer_ID buffer, Range_i64 
 
 //~ NOTE(yuval): Custom tick hook
 
+#if USE_YUVAL_CODE_INDEX
 function void
 yuval_tick(Application_Links *app, Frame_Info frame_info){
     Scratch_Block scratch(app);
@@ -975,7 +978,7 @@ yuval_tick(Application_Links *app, Frame_Info frame_info){
         Arena arena = make_arena_system(KB(16));
         Code_Index_File *index = push_array_zero(&arena, Code_Index_File, 1);
         index->buffer = buffer_id;
-
+        
         // TODO(yuval): Move this to my OWN custom layer
         index->string_to_index_note = make_table_Data_u64(arena.base_allocator, 500);
         
@@ -998,6 +1001,7 @@ yuval_tick(Application_Links *app, Frame_Info frame_info){
         animate_in_n_milliseconds(app, 0);
     }
 }
+#endif
 
 //~ NOTE(rjf): Custom layer initialization
 
@@ -1020,9 +1024,15 @@ custom_layer_init(Application_Links *app)
     // NOTE(allen): default hooks and command maps
     {
         set_all_default_hooks(app);
+        
+#if USE_YUVAL_CODE_INDEX
+        set_custom_hook(app, HookID_Tick, yuval_tick);
+#endif
+        
         set_custom_hook(app, HookID_RenderCaller,  Fleury4Render);
         set_custom_hook(app, HookID_BeginBuffer,   Fleury4BeginBuffer);
         set_custom_hook(app, HookID_Layout,        Fleury4Layout);
+        
         mapping_init(tctx, &framework_mapping);
         yuval_set_bindings(&framework_mapping);
     }

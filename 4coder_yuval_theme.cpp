@@ -6,7 +6,7 @@ yuval_update_dark_theme(Application_Links *app) {
     // NOTE(yuval): Color Constants
     ARGB_Color background_color = 0xFF201F21;
     
-    ARGB_Color text_default_color = 0xFFA89A8A;
+    ARGB_Color text_default_color = 0xFF9B8A76;
     ARGB_Color comment_color = 0xFF7D7D7D;
     ARGB_Color keyword_color = 0xFFB5913B;
     ARGB_Color constant_color = 0xFF718C40;
@@ -60,20 +60,3 @@ yuval_update_dark_theme(Application_Links *app) {
     table->arrays[defcolor_line_numbers_back]     = make_colors(arena, background_color);
     table->arrays[defcolor_line_numbers_text]     = make_colors(arena, comment_color);
 }
-
-#if 0
-CUSTOM_COMMAND_SIG(fleury_toggle_colors)
-CUSTOM_DOC("Toggles light/dark mode.")
-{
-    if(global_dark_mode)
-    {
-        Fleury4LightMode(app);
-        global_dark_mode = 0;
-    }
-    else
-    {
-        Fleury4DarkMode(app);
-        global_dark_mode = 1;
-    }
-}
-#endif

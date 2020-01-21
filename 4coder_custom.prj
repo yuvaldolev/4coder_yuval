@@ -1,0 +1,7 @@
+: code
+*
+../custom/*
+
+: build
+mac build.sh
+win32 build.bat

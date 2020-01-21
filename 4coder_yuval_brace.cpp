@@ -85,7 +85,7 @@ Fleury4RenderCloseBraceAnnotation(Application_Links *app, Buffer_ID buffer, Text
             if (!token || (token && (token->pos >= visible_range.start))) {
                 continue;
             }
-
+            
             // NOTE(yuval): Check if the range's end is not in the visialbe range
             // (if the closing brace is not visible than we don't need to render an annotation)
             if (range.end > visible_range.end) {
@@ -177,7 +177,7 @@ Fleury4RenderCloseBraceAnnotation(Application_Links *app, Buffer_ID buffer, Text
             
             u32 color = finalize_color(defcolor_comment, 0);
             color &= 0x00ffffff;
-            color |= 0x80000000;
+            color |= 0xB0000000;
             draw_string(app, face_id, start_line, close_scope_pos, color);
             
         }

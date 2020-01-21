@@ -11,8 +11,8 @@ BIN_DSYM="$BIN.dSYM"
 pushd "$CUSTOM_ROOT" > /dev/null
 bin/buildsuper_x64-mac.sh "$LOCATION/4coder_yuval.cpp"
 
-mv "$BIN" "$PROJECT_ROOT/$BIN"
+mv "$BIN" "$PROJECT_ROOT/$BIN" &> /dev/null
 
-rm -r "$PROJECT_ROOT/$BIN_DSYM" > /dev/null
-mv "$BIN_DSYM" "$PROJECT_ROOT/$BIN_DSYM"
+rm -r "$PROJECT_ROOT/$BIN_DSYM" &> /dev/null
+mv "$BIN_DSYM" "$PROJECT_ROOT/$BIN_DSYM" &> /dev/null
 popd > /dev/null

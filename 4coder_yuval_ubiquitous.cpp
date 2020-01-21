@@ -3,8 +3,32 @@ static Face_ID global_styled_label_face = 0;
 static Face_ID global_small_code_face = 0;
 static Vec2_f32 global_cursor_position = {0};
 static Vec2_f32 global_last_cursor_position = {0};
-static b32 global_dark_mode = 1;
 
+#if USE_YUVAL_CODE_INDEX
+static Code_Index_Note *
+yuval_lookup_string_in_code_index(Application_Links *app, String_Const_u8 string) {
+    Code_Index_Note *note = 0;
+    
+    if (string.str) {
+        for (Buffer_ID buffer_it = get_buffer_next(app, 0, Access_Always);
+             buffer_it;
+             buffer_it = get_buffer_next(app, buffer_it, Access_Always)) {
+            Code_Index_File* file = code_index_get_file(buffer_it);
+            if (file) {
+                Data data = make_data(string.str, string.size);
+                Table_Lookup lookup = table_lookup(&file->string_to_index_note, data);
+                if (lookup.found_match){
+                    u64 val = 0;
+                    table_read(&file->string_to_index_note, lookup, &val);
+                    note = (Code_Index_Note*)IntAsPtr(val);
+                    break;
+                }
+            }
+        }
+    }
+    return note;
+}
+#else
 static Code_Index_Note *
 yuval_lookup_string_in_code_index(Application_Links *app, String_Const_u8 string) {
     Code_Index_Note *note = 0;
@@ -31,6 +55,7 @@ yuval_lookup_string_in_code_index(Application_Links *app, String_Const_u8 string
 	}
     return note;
 }
+#endif
 
 static Code_Index_Note *
 yuval_lookup_token_in_code_index(Application_Links *app, Buffer_ID buffer, Token token) {
@@ -65,18 +90,10 @@ yuval_get_cpp_token_color(Token token) {
             u32 g = (color & 0x0000ff00) >>  8;
             u32 b = (color & 0x000000ff) >>  0;
             
-            if(global_dark_mode)
-            {
-                r = (r * 3) / 5;
-                g = (g * 3) / 5;
-                b = (b * 3) / 5;
-            }
-            else
-            {
-                r = (r * 4) / 3;
-                g = (g * 4) / 3;
-                b = (b * 4) / 3;
-            }
+            r = (r * 4) / 5;
+            g = (g * 4) / 5;
+            b = (b * 4) / 5;
+            
             
             color = 0xff000000 | (r << 16) | (g << 8) | (b << 0);
             
@@ -169,13 +186,13 @@ static void
 Fleury4DrawTooltipRect(Application_Links *app, Rect_f32 rect)
 {
     ARGB_Color background_color = fcolor_resolve(fcolor_id(defcolor_back));
-    ARGB_Color border_color = fcolor_resolve(fcolor_id(defcolor_margin_active));
+    ARGB_Color border_color = 0xFFFFFFFF;
     
     background_color &= 0x00ffffff;
     background_color |= 0xd0000000;
     
     border_color &= 0x00ffffff;
-    border_color |= 0xd0000000;
+    border_color |= 0x30000000;
     
     draw_rectangle(app, rect, 4.f, background_color);
     draw_rectangle_outline(app, rect, 4.f, 3.f, border_color);
