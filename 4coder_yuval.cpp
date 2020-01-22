@@ -409,12 +409,14 @@ Fleury4RenderFunctionHelper(Application_Links *app, View_ID view, Buffer_ID buff
                                 String_Const_u8 pre_highlight_def = Fleury4CopyStringButOnlyAllowOneSpace(scratch, pre_highlight_def_untrimmed);
                                 String_Const_u8 post_highlight_def = Fleury4CopyStringButOnlyAllowOneSpace(scratch, post_highlight_def_untrimmed);
                                 
+                                Rect_f32 cursor_pos = text_layout_character_on_screen(app, text_layout_id, pos);
+                                
                                 Rect_f32 helper_rect =
                                 {
-                                    global_cursor_position.x + 16,
-                                    global_cursor_position.y + 16,
-                                    global_cursor_position.x + 16,
-                                    global_cursor_position.y + metrics.line_height + 26,
+                                    cursor_pos.x0 + 16,
+                                    cursor_pos.y0 + 16,
+                                    cursor_pos.x0 + 16,
+                                    cursor_pos.y0 + metrics.line_height + 26,
                                 };
                                 
                                 f32 padding = (helper_rect.y1 - helper_rect.y0)/2 -
@@ -428,9 +430,10 @@ Fleury4RenderFunctionHelper(Application_Links *app, View_ID view, Buffer_ID buff
                                     helper_rect.x1 += 2 * padding;
                                 }
                                 
-                                if(helper_rect.x1 > view_get_screen_rect(app, view).x1)
+                                Rect_f32 screen_rect = view_get_screen_rect(app, view);
+                                if(helper_rect.x1 > screen_rect.x1)
                                 {
-                                    f32 difference = helper_rect.x1 - view_get_screen_rect(app, view).x1;
+                                    f32 difference = helper_rect.x1 - screen_rect.x1;
                                     helper_rect.x0 -= difference;
                                     helper_rect.x1 -= difference;
                                 }
@@ -563,11 +566,13 @@ yuval_render_buffer(Application_Links *app, View_ID view_id, Face_ID face_id,
     }
     
     // NOTE(rjf): Error annotations
+#if 0
     {
         String_Const_u8 name = string_u8_litexpr("*compilation*");
         Buffer_ID compilation_buffer = get_buffer_by_name(app, name, Access_Always);
         Fleury4RenderErrorAnnotations(app, buffer, text_layout_id, compilation_buffer);
     }
+#endif
     
     // NOTE(rjf): Token highlight
     if (global_edit_mode && is_active_view) {

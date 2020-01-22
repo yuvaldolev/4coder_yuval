@@ -117,6 +117,9 @@ yuval_set_bindings(Mapping *mapping) {
         Bind(move_down_to_blank_line, KeyCode_PageDown);
         Bind(page_down, KeyCode_PageDown, KeyCode_Shift);
         
+        Bind(if_read_only_goto_position,  KeyCode_Return);
+        Bind(if_read_only_goto_position_same_panel, KeyCode_Return, KeyCode_Shift);
+        
         // NOTE(yuval): Modal Key Bindings
         Bind(yuval_modal_a, KeyCode_A);
         Bind(yuval_modal_b, KeyCode_B);

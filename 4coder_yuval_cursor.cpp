@@ -36,6 +36,12 @@ yuval_render_cursor(Application_Links *app, View_ID view_id, b32 is_active_view,
                     Rect_f32 target_rect = text_layout_character_on_screen(app, text_layout_id, cursor_pos);
                     Rect_f32 last_rect = rect;
                     
+                    // HACK(yuval): When we scroll up or down the target rect seems to be all zeroed. This is a quick hack to fix the unwanted cursor move that happends because of that.
+                    if ((target_rect.x0 == 0) && (target_rect.y0 == 0) &&
+                        (target_rect.x1 == 0) && (target_rect.y1 == 0)) {
+                        target_rect = last_rect;
+                    }
+                    
                     float x_change = target_rect.x0 - rect.x0;
                     float y_change = target_rect.y0 - rect.y0;
                     float cursor_size_x = (target_rect.x1 - target_rect.x0);
@@ -45,7 +51,6 @@ yuval_render_cursor(Application_Links *app, View_ID view_id, b32 is_active_view,
                     rect.y0 += (y_change) * frame_info.animation_dt * 14.f;
                     
                     f32 main_cursor_roundness;
-                    // NOTE(yuval): Normal cursor adjustment
                     if (global_edit_mode) {
                         rect.x1 = rect.x0 + cursor_size_x;
                         main_cursor_roundness = roundness;

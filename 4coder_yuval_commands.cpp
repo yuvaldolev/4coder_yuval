@@ -85,13 +85,13 @@ CUSTOM_DOC("Saves all dirty buffers and executes the global build file.")
 {
     save_all_dirty_buffers(app);
     
-    block_zero_struct(&prev_location);
-    lock_jump_buffer(app, standard_build_build_buffer_identifier.id);
-    
     String_Const_u8 command = SCu8(global_build_file_path);
-    exec_system_command(app, global_build_view, standard_build_build_buffer_identifier, string_remove_last_folder(command), command, CLI_OverlapWithConflict | CLI_SendEndSignal);
+    standard_build_exec_command(app, global_build_view, string_remove_last_folder(command), command);
     
     set_fancy_compilation_buffer_font(app);
+    
+    block_zero_struct(&prev_location);
+    lock_jump_buffer(app, standard_build_build_buffer_identifier.name, standard_build_build_buffer_identifier.name_len);
 }
 
 CUSTOM_COMMAND_SIG(yuval_kill_all_buffers)

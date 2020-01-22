@@ -90,10 +90,9 @@ yuval_get_cpp_token_color(Token token) {
             u32 g = (color & 0x0000ff00) >>  8;
             u32 b = (color & 0x000000ff) >>  0;
             
-            r = (r * 4) / 5;
-            g = (g * 4) / 5;
-            b = (b * 4) / 5;
-            
+            r = (r * 2) / 3;
+            g = (g * 2) / 3;
+            b = (b * 2) / 3;
             
             color = 0xff000000 | (r << 16) | (g << 8) | (b << 0);
             

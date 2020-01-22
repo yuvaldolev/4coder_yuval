@@ -15,4 +15,5 @@ mv "$BIN" "$PROJECT_ROOT/$BIN" &> /dev/null
 
 rm -r "$PROJECT_ROOT/$BIN_DSYM" &> /dev/null
 mv "$BIN_DSYM" "$PROJECT_ROOT/$BIN_DSYM" &> /dev/null
+
 popd > /dev/null
