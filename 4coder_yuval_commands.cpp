@@ -27,6 +27,22 @@ CUSTOM_DOC("Places a new cursor at the current main cursor position.")
 
 //~ Yuval's Custom Commands
 
+CUSTOM_COMMAND_SIG(yuval_backspace_whitespace_or_token_boundary)
+CUSTOM_DOC("Delete characters between the cursor position and the first token boundary or the boundary between whitespace and non-whitespace to the left.")
+{
+    Scratch_Block scratch(app);
+    current_view_boundary_delete(app, Scan_Backward,
+                                 push_boundary_list(scratch, boundary_token, boundary_non_whitespace));
+}
+
+CUSTOM_COMMAND_SIG(yuval_delete_whitespace_or_token_boundary)
+CUSTOM_DOC("Delete characters between the cursor position and the first token boundary or the boundary between whitespace and non-whitespace to the right.")
+{
+    Scratch_Block scratch(app);
+    current_view_boundary_delete(app, Scan_Forward,
+                                 push_boundary_list(scratch, boundary_token, boundary_non_whitespace));
+}
+
 CUSTOM_COMMAND_SIG(yuval_home_and_tab)
 CUSTOM_DOC("Goes to the beginning of the line and tabs.")
 {
@@ -764,19 +780,4 @@ CUSTOM_COMMAND_SIG(yuval_jump_lister_other_panel)
 CUSTOM_DOC("Displays yuval's jump lister in the other panel.")
 {
     change_active_panel_send_command(app, yuval_jump_lister);
-}
-
-CUSTOM_COMMAND_SIG(yuval_toggle_build_panel_display) {
-    local_persist b32 collapsed = true;
-    
-    float new_p;
-    if (collapsed) {
-        new_p = BUILD_PANEL_EXPANDED_P;
-        collapsed = false;
-    } else {
-        new_p = BUILD_PANEL_COLLAPSED_P;
-        collapsed = true;
-    }
-    
-    view_set_split_proportion(app, global_build_view, new_p);
 }

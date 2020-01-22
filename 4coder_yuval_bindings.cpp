@@ -43,15 +43,15 @@ DEFINE_MODAL_KEY(yuval_modal_x, yuval_open_matching_file_other_panel);
 DEFINE_MODAL_KEY(yuval_modal_y, redo);
 DEFINE_MODAL_KEY(yuval_modal_z, interactive_open_or_new);
 
-DEFINE_MODAL_KEY(yuval_modal_1, fleury_code_peek); // TODO(yuval): Shouldn't need to bind a key for this? (casey_build_search)
-DEFINE_MODAL_KEY(yuval_modal_2, fleury_close_code_peek); // TODO(yuval): Available
-DEFINE_MODAL_KEY(yuval_modal_3, fleury_code_peek_go); // TODO(yuval): Available
-DEFINE_MODAL_KEY(yuval_modal_4, fleury_code_peek_go_same_panel); // TODO(yuval): Available
+DEFINE_MODAL_KEY(yuval_modal_1, fleury_code_peek);
+DEFINE_MODAL_KEY(yuval_modal_2, fleury_close_code_peek);
+DEFINE_MODAL_KEY(yuval_modal_3, fleury_code_peek_go);
+DEFINE_MODAL_KEY(yuval_modal_4, fleury_code_peek_go_same_panel);
 DEFINE_MODAL_KEY(yuval_modal_5, leave_current_input_unhandled); // TODO(yuval): Available
 DEFINE_MODAL_KEY(yuval_modal_6, leave_current_input_unhandled); // TODO(yuval): Available
 DEFINE_MODAL_KEY(yuval_modal_7, leave_current_input_unhandled); // TODO(yuval): Available
-DEFINE_MODAL_KEY(yuval_modal_8, yuval_jump_lister_other_panel); // TODO(yuval): Available
-DEFINE_MODAL_KEY(yuval_modal_9, yuval_jump_lister); // TODO(yuval): Available
+DEFINE_MODAL_KEY(yuval_modal_8, yuval_jump_lister_other_panel);
+DEFINE_MODAL_KEY(yuval_modal_9, yuval_jump_lister);
 DEFINE_MODAL_KEY(yuval_modal_0, kill_buffer);
 DEFINE_MODAL_KEY(yuval_modal_minus, command_lister);
 DEFINE_MODAL_KEY(yuval_modal_equals, yuval_command_lister);
@@ -66,12 +66,12 @@ DEFINE_MODAL_KEY(yuval_modal_semicolon, list_all_locations);
 DEFINE_MODAL_KEY(yuval_modal_open_bracket, keyboard_macro_start_recording);
 DEFINE_MODAL_KEY(yuval_modal_close_bracket, keyboard_macro_finish_recording);
 
-DEFINE_BIMODAL_KEY(yuval_modal_backspace, snipe_backward_whitespace_or_token_boundary, backspace_char);
+DEFINE_BIMODAL_KEY(yuval_modal_backspace, yuval_backspace_whitespace_or_token_boundary, backspace_char);
 DEFINE_BIMODAL_KEY(yuval_modal_up, move_up, move_up);
 DEFINE_BIMODAL_KEY(yuval_modal_down, move_down, move_down);
-DEFINE_BIMODAL_KEY(yuval_modal_left, move_left_token_boundary, move_left);
-DEFINE_BIMODAL_KEY(yuval_modal_right, move_right_token_boundary, move_right);
-DEFINE_BIMODAL_KEY(yuval_modal_delete, snipe_forward_whitespace_or_token_boundary, delete_char);
+DEFINE_BIMODAL_KEY(yuval_modal_left, move_left_whitespace_or_token_boundary, move_left);
+DEFINE_BIMODAL_KEY(yuval_modal_right, move_right_whitespace_or_token_boundary, move_right);
+DEFINE_BIMODAL_KEY(yuval_modal_delete, yuval_delete_whitespace_or_token_boundary, delete_char);
 DEFINE_BIMODAL_KEY(yuval_modal_home, fleury_home, yuval_home_and_tab);
 DEFINE_BIMODAL_KEY(yuval_modal_end, seek_end_of_line, seek_end_of_line);
 DEFINE_BIMODAL_KEY(yuval_modal_tab, word_complete, word_complete);

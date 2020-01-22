@@ -20,19 +20,15 @@
 
 #define YUVAL_PRINTABLE_STRING(string) ((i32)((string).size)), ((string).str)
 
-global_const f32 BUILD_PANEL_COLLAPSED_P = 0.05f;
-global_const f32 BUILD_PANEL_EXPANDED_P = 0.85f;
-global_const ARGB_Color BUILD_VIEW_BACKGROUND_COLOR = 0xFF121212;
-
 // TODO(yuval): Make this changeable somehome (maybe through command line arguments?) 
 global_const String_Const_u8 global_projects_master_file_path = string_u8_litinit("/Users/yuvaldolev/4ed/build/projects.prj");
 
 global b32 global_edit_mode = true;
 
-global View_ID global_build_view;
 global u8 global_build_file_path[4096] = "./build.sh";
 
 #include "4coder_yuval_theme.cpp"
+#include "4coder_yuval_build_view.cpp"
 #include "4coder_yuval_startup.cpp"
 #include "4coder_yuval_commands.cpp"
 #include "4coder_yuval_bindings.cpp"
@@ -700,15 +696,14 @@ Fleury4Render(Application_Links *app, Frame_Info frame_info, View_ID view_id)
     
     // NOTE(rjf): Draw background.
     {
-        ARGB_Color color;
         if (view_id == global_build_view) {
-            color = BUILD_VIEW_BACKGROUND_COLOR;
+            yuval_build_view_draw(app, frame_info);
         } else {
-            color = fcolor_resolve(fcolor_id(defcolor_back));
+            ARGB_Color color = fcolor_resolve(fcolor_id(defcolor_back));
+            
+            draw_rectangle(app, region, 0.f, color);
+            draw_margin(app, view_rect, region, color);
         }
-        
-        draw_rectangle(app, region, 0.f, color);
-        draw_margin(app, view_rect, region, color);
     }
     
     Rect_f32 prev_clip = draw_set_clip(app, region);

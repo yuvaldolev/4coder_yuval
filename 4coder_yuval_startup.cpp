@@ -23,45 +23,35 @@ CUSTOM_DOC("Yuval startup event.")
         String_Const_u8_Array file_names = input.event.core.file_names;
         load_themes_default_folder(app);
         default_4coder_initialize(app, file_names);
-
+        
         // NOTE(yuval): Create the panels
         {
             View_ID left_code_view = get_active_view(app, Access_Always);
-
-            // NOTE(yuval): Create the build panel
-            {
-                global_build_view = open_footer_panel(app, left_code_view);
             
-                view_set_split_proportion(app, global_build_view, BUILD_PANEL_COLLAPSED_P);
-                hide_scrollbar(app);
-                hide_filebar(app);
-
-                Buffer_ID compilation_buffer = buffer_identifier_to_id_create_out_buffer(app, standard_build_build_buffer_identifier);
-                view_set_buffer(app, global_build_view, compilation_buffer, 0);
-            }
-
+            // NOTE(yuval): Create the build panel
+            yuval_build_view_open(app, left_code_view);
             change_active_panel(app);
-
+            
             // NOTE(yuval): Open side by side code panels
             default_4coder_side_by_side_panels(app, file_names);
-
+            
             // NOTE(yuval): Set the left code panel's settings
             {
                 hide_scrollbar(app);
                 hide_filebar(app);
                 change_active_panel(app);
             }
-
+            
             // NOTE(yuval): Set the right code panel's settings
             {
                 hide_scrollbar(app);
                 hide_filebar(app);
             }
-
+            
             // NOTE(yuval): Set the left code panel as the active panel
             view_set_active(app, left_code_view);
         }
-
+        
         
         if (global_config.automatically_load_project){
             load_project(app);
@@ -71,7 +61,7 @@ CUSTOM_DOC("Yuval startup event.")
         {
             Scratch_Block scratch(app);
             String_Const_u8 bin_path = system_get_path(scratch, SystemPath_Binary);
-
+            
             // NOTE(rjf): Fallback font.
             Face_ID face_that_should_totally_be_there = get_face_id(app, 0);
             
@@ -85,7 +75,7 @@ CUSTOM_DOC("Yuval startup event.")
                     desc.parameters.italic = 0;
                     desc.parameters.hinting = 0;
                 }
-
+                
                 if(IsFileReadable(desc.font.file_name))
                 {
                     global_styled_title_face = try_create_new_face(app, &desc);
@@ -106,7 +96,7 @@ CUSTOM_DOC("Yuval startup event.")
                     desc.parameters.italic = 1;
                     desc.parameters.hinting = 0;
                 }
-
+                
                 if(IsFileReadable(desc.font.file_name))
                 {
                     global_styled_label_face = try_create_new_face(app, &desc);
