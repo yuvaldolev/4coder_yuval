@@ -422,10 +422,11 @@ Fleury4RenderFunctionHelper(Application_Links *app, View_ID view, Buffer_ID buff
                                 f32 padding = (helper_rect.y1 - helper_rect.y0)/2 -
                                     metrics.line_height/2;
                                 
+                                f32 pre_advance = get_string_advance(app, face, pre_highlight_def);
                                 // NOTE(rjf): Size helper rect by how much text to draw.
                                 {
                                     helper_rect.x1 += get_string_advance(app, face, highlight_param);
-                                    helper_rect.x1 += get_string_advance(app, face, pre_highlight_def);
+                                    helper_rect.x1 += pre_advance;
                                     helper_rect.x1 += get_string_advance(app, face, post_highlight_def);
                                     helper_rect.x1 += 2 * padding;
                                 }
@@ -436,6 +437,13 @@ Fleury4RenderFunctionHelper(Application_Links *app, View_ID view, Buffer_ID buff
                                     f32 difference = helper_rect.x1 - screen_rect.x1;
                                     helper_rect.x0 -= difference;
                                     helper_rect.x1 -= difference;
+                                }
+                                
+                                f32 highlight_x_pos = (helper_rect.x0 + padding + pre_advance);
+                                if (highlight_x_pos < screen_rect.x0) {
+                                    f32 difference = (screen_rect.x0 - highlight_x_pos) + (3 * padding);
+                                    helper_rect.x0 += difference;
+                                    helper_rect.x1 += difference;
                                 }
                                 
                                 Vec2_f32 text_position =
