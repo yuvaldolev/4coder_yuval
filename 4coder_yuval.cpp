@@ -5,9 +5,6 @@
 #define USE_YUVAL_CODE_INDEX 1
 
 #include "4coder_yuval_default_include.cpp"
-
-#include "4coder_default_map.cpp"
-#include "4coder_mac_map.cpp"
 #include "generated/managed_id_metadata.cpp"
 
 #pragma warning(disable : 4706)
@@ -21,7 +18,7 @@
 #define YUVAL_PRINTABLE_STRING(string) ((i32)((string).size)), ((string).str)
 
 // TODO(yuval): Make this changeable somehome (maybe through command line arguments?) 
-global_const String_Const_u8 global_projects_master_file_path = string_u8_litinit("/Users/yuvaldolev/4ed/build/projects.prj");
+global_const String_Const_u8 global_projects_master_file_path = string_u8_litinit("/Users/yuvaldolev/apps/4coder/projects.prj");
 
 global b32 global_edit_mode = true;
 
@@ -35,32 +32,6 @@ global u8 global_build_file_path[4096] = "./build.sh";
 #include "4coder_yuval_cursor.cpp"
 #include "4coder_yuval_code_peek.cpp"
 #include "4coder_yuval_brace.cpp"
-
-//~
-
-function void
-setup_built_in_mapping(Application_Links *app, String_Const_u8 name, Mapping *mapping, i64 global_id, i64 file_id, i64 code_id){
-    Thread_Context *tctx = get_thread_context(app);
-    if (string_match(name, string_u8_litexpr("default"))){
-        mapping_release(tctx, mapping);
-        mapping_init(tctx, mapping);
-        setup_default_mapping(mapping, global_id, file_id, code_id);
-    }
-    else if (string_match(name, string_u8_litexpr("mac-default"))){
-        mapping_release(tctx, mapping);
-        mapping_init(tctx, mapping);
-        setup_mac_mapping(mapping, global_id, file_id, code_id);
-    }
-    else if (string_match(name, string_u8_litexpr("choose"))){
-        mapping_release(tctx, mapping);
-        mapping_init(tctx, mapping);
-#if OS_MAC
-        setup_mac_mapping(mapping, global_id, file_id, code_id);
-#else
-        setup_default_mapping(mapping, global_id, file_id, code_id);
-#endif
-    }
-}
 
 //~ NOTE(rjf): Error annotations
 

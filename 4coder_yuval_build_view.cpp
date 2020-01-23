@@ -25,7 +25,7 @@ yuval_build_view_open(Application_Links* app, View_ID view){
 function void
 yuval_build_view_draw(Application_Links* app, Frame_Info frame_info){
     local_const ARGB_Color BACKGROUND_COLOR = 0xFF121212;
-    local_const f32 DOPEN_DT= 2.7f;
+    local_const f32 DOPEN_DT= 3.0f;
     
     local_persist f32 open_t = YUVAL_BUILD_VIEW__COLLAPSED_P;
     
