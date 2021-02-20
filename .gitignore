@@ -1,1 +1,6 @@
+# Directories.
+custom_4coder.so.dSYM/
+
+# Files.
+custom_4coder.so
 4coder_command_metadata.i
