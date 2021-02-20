@@ -1,3 +1,6 @@
 [submodule "4coder_fleury"]
 	path = 4coder_fleury
 	url = https://github.com/ryanfleury/4coder_fleury
+[submodule "4coder-vimmish"]
+	path = 4coder-vimmish
+	url = https://github.com/yuvaldolev/4coder-vimmish
