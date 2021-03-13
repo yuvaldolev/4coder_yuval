@@ -403,58 +403,61 @@ typedef int socklen_t;
 #define COMMAND_SERVER_AUTO_LAUNCH_IF_FILE_PRESENT "project_namespaces.txt"
 
 //~ NOTE(rjf): @f4_headers
-#include "4coder_fleury_ubiquitous.h"
-#include "4coder_fleury_audio.h"
-#include "4coder_fleury_lang.h"
-#include "4coder_fleury_index.h"
-#include "4coder_fleury_colors.h"
-#include "4coder_fleury_render_helpers.h"
-#include "4coder_fleury_brace.h"
-#include "4coder_fleury_error_annotations.h"
-#include "4coder_fleury_divider_comments.h"
-#include "4coder_fleury_power_mode.h"
-#include "4coder_fleury_cursor.h"
-#include "4coder_fleury_plot.h"
-#include "4coder_fleury_calc.h"
-#include "4coder_fleury_lego.h"
-#include "4coder_fleury_pos_context_tooltips.h"
-#include "4coder_fleury_code_peek.h"
-#include "4coder_fleury_recent_files.h"
-#include "4coder_fleury_bindings.h"
-#include "4coder_fleury_base_commands.h"
+#include "4coder_fleury/4coder_fleury_ubiquitous.h"
+#include "4coder_fleury/4coder_fleury_audio.h"
+#include "4coder_fleury/4coder_fleury_lang.h"
+#include "4coder_fleury/4coder_fleury_index.h"
+#include "4coder_fleury/4coder_fleury_colors.h"
+#include "4coder_fleury/4coder_fleury_render_helpers.h"
+#include "4coder_fleury/4coder_fleury_brace.h"
+#include "4coder_fleury/4coder_fleury_error_annotations.h"
+#include "4coder_fleury/4coder_fleury_divider_comments.h"
+#include "4coder_fleury/4coder_fleury_power_mode.h"
+#include "4coder_fleury/4coder_fleury_cursor.h"
+#include "4coder_fleury/4coder_fleury_plot.h"
+#include "4coder_fleury/4coder_fleury_calc.h"
+#include "4coder_fleury/4coder_fleury_lego.h"
+#include "4coder_fleury/4coder_fleury_pos_context_tooltips.h"
+#include "4coder_fleury/4coder_fleury_code_peek.h"
+#include "4coder_fleury/4coder_fleury_recent_files.h"
+#include "4coder_fleury/4coder_fleury_bindings.h"
+#include "4coder_fleury/4coder_fleury_base_commands.h"
 #if OS_WINDOWS
-#include "4coder_fleury_command_server.h"
+#include "4coder_fleury/4coder_fleury_command_server.h"
 #endif
-#include "4coder_fleury_hooks.h"
+#include "4coder_fleury/4coder_fleury_hooks.h"
 
 //~ NOTE(rjf): @f4_src
-#include "4coder_fleury_ubiquitous.cpp"
-#include "4coder_fleury_audio.cpp"
-#include "4coder_fleury_lang.cpp"
-#include "4coder_fleury_index.cpp"
-#include "4coder_fleury_colors.cpp"
-#include "4coder_fleury_render_helpers.cpp"
-#include "4coder_fleury_brace.cpp"
-#include "4coder_fleury_error_annotations.cpp"
-#include "4coder_fleury_divider_comments.cpp"
-#include "4coder_fleury_power_mode.cpp"
-#include "4coder_fleury_cursor.cpp"
-#include "4coder_fleury_plot.cpp"
-#include "4coder_fleury_calc.cpp"
-#include "4coder_fleury_lego.cpp"
-#include "4coder_fleury_pos_context_tooltips.cpp"
-#include "4coder_fleury_code_peek.cpp"
-#include "4coder_fleury_recent_files.cpp"
-#include "4coder_fleury_bindings.cpp"
-#include "4coder_fleury_base_commands.cpp"
+#include "4coder_fleury/4coder_fleury_ubiquitous.cpp"
+#include "4coder_fleury/4coder_fleury_audio.cpp"
+#include "4coder_fleury/4coder_fleury_lang.cpp"
+#include "4coder_fleury/4coder_fleury_index.cpp"
+#include "4coder_fleury/4coder_fleury_colors.cpp"
+#include "4coder_fleury/4coder_fleury_render_helpers.cpp"
+#include "4coder_fleury/4coder_fleury_brace.cpp"
+#include "4coder_fleury/4coder_fleury_error_annotations.cpp"
+#include "4coder_fleury/4coder_fleury_divider_comments.cpp"
+#include "4coder_fleury/4coder_fleury_power_mode.cpp"
+#include "4coder_fleury/4coder_fleury_cursor.cpp"
+#include "4coder_fleury/4coder_fleury_plot.cpp"
+#include "4coder_fleury/4coder_fleury_calc.cpp"
+#include "4coder_fleury/4coder_fleury_lego.cpp"
+#include "4coder_fleury/4coder_fleury_pos_context_tooltips.cpp"
+#include "4coder_fleury/4coder_fleury_code_peek.cpp"
+#include "4coder_fleury/4coder_fleury_recent_files.cpp"
+#include "4coder_fleury/4coder_fleury_bindings.cpp"
+#include "4coder_fleury/4coder_fleury_base_commands.cpp"
 #if OS_WINDOWS
-#include "4coder_fleury_command_server.cpp"
+#include "4coder_fleury/4coder_fleury_command_server.cpp"
 #endif
-#include "4coder_fleury_casey.cpp"
-#include "4coder_fleury_hooks.cpp"
+#include "4coder_fleury/4coder_fleury_casey.cpp"
+#include "4coder_fleury/4coder_fleury_hooks.cpp"
 
 //~ NOTE(rjf): Plots Demo File
-#include "4coder_fleury_plots_demo.cpp"
+#include "4coder_fleury/4coder_fleury_plots_demo.cpp"
+
+//~ NOTE: 4coder vimmish
+#include "4coder-vimmish/4coder_vimmish.cpp"
 
 //~ NOTE(rjf): 4coder Stuff
 #include "generated/managed_id_metadata.cpp"
@@ -481,16 +484,21 @@ void custom_layer_init(Application_Links *app)
         set_custom_hook_memory_size(app, HookID_DeltaRule, delta_ctx_size(sizeof(Vec2_f32)));
     }
     
+    // NOTE: Initialize the Vim layer.
+    vim_init(app);
+    vim_set_default_hooks(app);
+    
     // NOTE(rjf): Set up mapping.
     {
         Thread_Context *tctx = get_thread_context(app);
         mapping_init(tctx, &framework_mapping);
         String_Const_u8 bindings_file = string_u8_litexpr("bindings.4coder");
         F4_SetAbsolutelyNecessaryBindings(&framework_mapping);
-        if(!dynamic_binding_load_from_file(app, &framework_mapping, bindings_file))
-        {
-            F4_SetDefaultBindings(&framework_mapping);
-        }
+        /* if(!dynamic_binding_load_from_file(app, &framework_mapping, bindings_file)) */
+        /* { */
+        /*     F4_SetDefaultBindings(&framework_mapping); */
+        /* } */
+        vim_setup_default_mapping(app, &framework_mapping, vim_key(KeyCode_Space));
         F4_SetAbsolutelyNecessaryBindings(&framework_mapping);
     }
     
@@ -553,11 +561,11 @@ CUSTOM_DOC("Fleury startup event")
         
         // NOTE(rjf): Open lego buffer.
         {
-            Buffer_ID comp_buffer = create_buffer(app, string_u8_litexpr("*lego*"),
+            Buffer_ID lego_buffer = create_buffer(app, string_u8_litexpr("*lego*"),
                                                   BufferCreate_NeverAttachToFile |
                                                   BufferCreate_AlwaysNew);
-            buffer_set_setting(app, comp_buffer, BufferSetting_Unimportant, true);
-            buffer_set_setting(app, comp_buffer, BufferSetting_ReadOnly, true);
+            buffer_set_setting(app, lego_buffer, BufferSetting_Unimportant, true);
+            buffer_set_setting(app, lego_buffer, BufferSetting_ReadOnly, true);
         }
         
         // NOTE(rjf): Open calc buffer.
@@ -640,10 +648,11 @@ CUSTOM_DOC("Fleury startup event")
     {
         String_Const_u8 bindings_file = string_u8_litexpr("bindings.4coder");
         F4_SetAbsolutelyNecessaryBindings(&framework_mapping);
-        if(!dynamic_binding_load_from_file(app, &framework_mapping, bindings_file))
-        {
-            F4_SetDefaultBindings(&framework_mapping);
-        }
+        /* if(!dynamic_binding_load_from_file(app, &framework_mapping, bindings_file)) */
+        /* { */
+        /*     F4_SetDefaultBindings(&framework_mapping); */
+        /* } */
+        vim_setup_default_mapping(app, &framework_mapping, vim_key(KeyCode_Space));
         F4_SetAbsolutelyNecessaryBindings(&framework_mapping);
     }
     
