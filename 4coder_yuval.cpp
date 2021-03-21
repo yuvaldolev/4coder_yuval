@@ -427,6 +427,9 @@ typedef int socklen_t;
 #endif
 #include "4coder_fleury/4coder_fleury_hooks.h"
 
+//~ NOTE: @4coder_vimmish
+#include "4coder-vimmish/4coder_vimmish.cpp"
+
 //~ NOTE(rjf): @f4_src
 #include "4coder_fleury/4coder_fleury_ubiquitous.cpp"
 #include "4coder_fleury/4coder_fleury_audio.cpp"
@@ -456,9 +459,6 @@ typedef int socklen_t;
 //~ NOTE(rjf): Plots Demo File
 #include "4coder_fleury/4coder_fleury_plots_demo.cpp"
 
-//~ NOTE: 4coder vimmish
-#include "4coder-vimmish/4coder_vimmish.cpp"
-
 //~ NOTE(rjf): 4coder Stuff
 #include "generated/managed_id_metadata.cpp"
 
@@ -470,10 +470,14 @@ void custom_layer_init(Application_Links *app)
     global_frame_arena = make_arena(get_base_allocator_system());
     permanent_arena = make_arena(get_base_allocator_system());
     
+    // NOTE: Initialize the Vim layer.
+    vim_init(app);
+    
     // NOTE(rjf): Set up hooks.
     {
         set_all_default_hooks(app);
         //t $          ($  , $                             , $                     );
+        set_custom_hook(app, HookID_ViewEventHandler, vim_default_view_handler);
         set_custom_hook(app, HookID_Tick,                    F4_Tick);
         set_custom_hook(app, HookID_RenderCaller,            F4_Render);
         set_custom_hook(app, HookID_BeginBuffer,             F4_BeginBuffer);
@@ -483,10 +487,6 @@ void custom_layer_init(Application_Links *app)
         set_custom_hook(app, HookID_BufferEditRange,         F4_BufferEditRange);
         set_custom_hook_memory_size(app, HookID_DeltaRule, delta_ctx_size(sizeof(Vec2_f32)));
     }
-    
-    // NOTE: Initialize the Vim layer.
-    vim_init(app);
-    vim_set_default_hooks(app);
     
     // NOTE(rjf): Set up mapping.
     {
@@ -552,36 +552,44 @@ CUSTOM_DOC("Fleury startup event")
     {
         // NOTE(rjf): Open compilation buffer.
         {
-            Buffer_ID comp_buffer = create_buffer(app, string_u8_litexpr("*compilation*"),
-                                                  BufferCreate_NeverAttachToFile |
-                                                  BufferCreate_AlwaysNew);
-            buffer_set_setting(app, comp_buffer, BufferSetting_Unimportant, true);
-            buffer_set_setting(app, comp_buffer, BufferSetting_ReadOnly, true);
+            Buffer_ID buffer = create_buffer(app, string_u8_litexpr("*compilation*"),
+                                             BufferCreate_NeverAttachToFile |
+                                             BufferCreate_AlwaysNew);
+            buffer_set_setting(app, buffer, BufferSetting_Unimportant, true);
+            buffer_set_setting(app, buffer, BufferSetting_ReadOnly, true);
         }
         
         // NOTE(rjf): Open lego buffer.
         {
-            Buffer_ID lego_buffer = create_buffer(app, string_u8_litexpr("*lego*"),
-                                                  BufferCreate_NeverAttachToFile |
-                                                  BufferCreate_AlwaysNew);
-            buffer_set_setting(app, lego_buffer, BufferSetting_Unimportant, true);
-            buffer_set_setting(app, lego_buffer, BufferSetting_ReadOnly, true);
+            Buffer_ID buffer = create_buffer(app, string_u8_litexpr("*lego*"),
+                                             BufferCreate_NeverAttachToFile |
+                                             BufferCreate_AlwaysNew);
+            buffer_set_setting(app, buffer, BufferSetting_Unimportant, true);
+            buffer_set_setting(app, buffer, BufferSetting_ReadOnly, true);
         }
         
         // NOTE(rjf): Open calc buffer.
         {
-            Buffer_ID calc_buffer = create_buffer(app, string_u8_litexpr("*calc*"),
-                                                  BufferCreate_NeverAttachToFile |
-                                                  BufferCreate_AlwaysNew);
-            buffer_set_setting(app, calc_buffer, BufferSetting_Unimportant, true);
+            Buffer_ID buffer = create_buffer(app, string_u8_litexpr("*calc*"),
+                                             BufferCreate_NeverAttachToFile |
+                                             BufferCreate_AlwaysNew);
+            buffer_set_setting(app, buffer, BufferSetting_Unimportant, true);
         }
         
         // NOTE(rjf): Open peek buffer.
         {
-            Buffer_ID peek_buffer = create_buffer(app, string_u8_litexpr("*peek*"),
-                                                  BufferCreate_NeverAttachToFile |
-                                                  BufferCreate_AlwaysNew);
-            buffer_set_setting(app, peek_buffer, BufferSetting_Unimportant, true);
+            Buffer_ID buffer = create_buffer(app, string_u8_litexpr("*peek*"),
+                                             BufferCreate_NeverAttachToFile |
+                                             BufferCreate_AlwaysNew);
+            buffer_set_setting(app, buffer, BufferSetting_Unimportant, true);
+        }
+        
+        // NOTE(rjf): Open LOC buffer.
+        {
+            Buffer_ID buffer = create_buffer(app, string_u8_litexpr("*loc*"),
+                                             BufferCreate_NeverAttachToFile |
+                                             BufferCreate_AlwaysNew);
+            buffer_set_setting(app, buffer, BufferSetting_Unimportant, true);
         }
     }
     
