@@ -427,6 +427,9 @@ typedef int socklen_t;
 #endif
 #include "4coder_fleury/4coder_fleury_hooks.h"
 
+//~ @y4_headers
+#include "y4_commands.h"
+
 //~ NOTE: @4coder_vimmish
 #include "4coder-vimmish/4coder_vimmish.cpp"
 
@@ -458,6 +461,9 @@ typedef int socklen_t;
 
 //~ NOTE(rjf): Plots Demo File
 #include "4coder_fleury/4coder_fleury_plots_demo.cpp"
+
+//~ @y4_src
+#include "y4_commands.cpp"
 
 //~ NOTE(rjf): 4coder Stuff
 #include "generated/managed_id_metadata.cpp"
